@@ -39,7 +39,6 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .meeting-row { background: #f8fafc; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; }
         .badge { display: inline-flex; padding: 3px 10px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
-        .badge.closed { background: #dcfce7; color: #166534; }
         .badge.open { background: #fef3c7; color: #92400e; }
         .meta { font-size: 0.75rem; color: #64748b; margin: 8px 0; display: flex; gap: 12px; flex-wrap: wrap; }
         .action-group { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
@@ -121,6 +120,7 @@
     }
 
     async function loadUsers() {
+        console.log("Вчитување на корисници од API...");
         const data = await apiGet('getUsers');
         if (data.success && data.users && data.users.length > 0) {
             users = data.users;
@@ -132,6 +132,7 @@
                 { id: 4, name: "Ана Костовска", position: "Службеник", email: "ana@na.org.mk", password: "12345", isAdmin: false }
             ];
         }
+        console.log("Корисници вчитани:", users.length);
     }
 
     async function saveMeetingToCloud(meeting) { return await apiPost('saveMeeting', meeting); }
@@ -180,18 +181,25 @@
     }
 
     // ============================================
-    // АВТЕНТИКАЦИЈА
+    // АВТЕНТИКАЦИЈА (ПОПРАВЕНА)
     // ============================================
     async function login(email, password) {
+        // Прво вчитај ги корисниците од серверот
         await loadUsers();
+        
+        console.log("Корисници вчитани:", users.length);
+        
         const user = users.find(u => u.email === email);
         if (!user) {
+            console.log("Корисникот не е пронајден:", email);
             return { success: false, error: "Нема корисник со оваа е-пошта" };
         }
         if (user.password !== password) {
+            console.log("Погрешна лозинка за:", email);
             return { success: false, error: "Погрешна лозинка" };
         }
         currentUser = user;
+        console.log("Најавен:", currentUser.name);
         await loadMeetings();
         renderApp();
         return { success: true };
@@ -264,7 +272,7 @@
     }
 
     // ============================================
-    // РЕНДЕРИРАЊЕ НА КАЛЕНДАР, СТАТИСТИКИ итн.
+    // РЕНДЕРИРАЊЕ
     // ============================================
     function renderCalendar() {
         const monthNames = ["јануари","февруари","март","април","мај","јуни","јули","август","септември","октомври","ноември","декември"];
@@ -459,7 +467,9 @@
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
     async function init() {
+        console.log("Иницијализација...");
         await loadUsers();
+        console.log("Корисници вчитани:", users.length);
         renderApp();
     }
     init();
