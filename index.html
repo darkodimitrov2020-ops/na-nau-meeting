@@ -373,7 +373,7 @@
         if (!selectedMeetingForModal) return;
         
         const m = selectedMeetingForModal;
-        const attendeesList = m.attendees ? m.attendees.split(',').map(s => s.trim()) : [];
+        const attendeesList = m.attendees ? String(m.attendees).split(',').map(s => s.trim()) : [];
         const consents = m.consents || [];
         
         let consentHtml = `<div class="consent-list"><strong>📋 ${t('consentList')}:</strong>`;
@@ -392,11 +392,11 @@
             <div id="modalContainer" class="modal" onclick="if(event.target===this) closeModal()">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3>${canEdit ? t('editMeeting') : m.title_mk}</h3>
+                        <h3>${canEdit ? t('editMeeting') : escapeHtml(m.title_mk || '')}</h3>
                         <button class="btn btn-sm" onclick="closeModal()">✖ ${t('close')}</button>
                     </div>
                     ${canEdit ? `
-                        <div class="fi"><label>${t('title')} (македонски)*</label><input type="text" id="edit_title_mk" value="${escapeHtml(m.title_mk)}"></div>
+                        <div class="fi"><label>${t('title')} (македонски)*</label><input type="text" id="edit_title_mk" value="${escapeHtml(m.title_mk || '')}"></div>
                         <div class="fi"><label>${t('title')} (англиски)</label><input type="text" id="edit_title_en" value="${escapeHtml(m.title_en || '')}"></div>
                         <div class="grid-2">
                             <div class="fi"><label>${t('date')}</label><input type="date" id="edit_date" value="${m.date || ''}"></div>
@@ -404,19 +404,19 @@
                         </div>
                         <div class="fi"><label>${t('location')}</label><input type="text" id="edit_location" value="${escapeHtml(m.location || '')}"></div>
                         <div class="fi"><label>${t('attendees')}</label><input type="text" id="edit_attendees" value="${escapeHtml(m.attendees || '')}"></div>
-                        <div class="fi"><label>${t('agenda')} (македонски)</label><textarea id="edit_agenda_mk" rows="3">${escapeHtml(m.agenda_mk || '')}</textarea></div>
-                        <div class="fi"><label>${t('agenda')} (англиски)</label><textarea id="edit_agenda_en" rows="3">${escapeHtml(m.agenda_en || '')}</textarea></div>
-                        <div class="fi"><label>${t('minutes')} (македонски)</label><textarea id="edit_minutes_mk" rows="4">${escapeHtml(m.minutes_mk || '')}</textarea></div>
-                        <div class="fi"><label>${t('minutes')} (англиски)</label><textarea id="edit_minutes_en" rows="4">${escapeHtml(m.minutes_en || '')}</textarea></div>
-                        <div class="fi"><label>${t('decisions')} (македонски)</label><textarea id="edit_decisions_mk" rows="3">${escapeHtml(m.decisions_mk || '')}</textarea></div>
-                        <div class="fi"><label>${t('decisions')} (англиски)</label><textarea id="edit_decisions_en" rows="3">${escapeHtml(m.decisions_en || '')}</textarea></div>
+                        <div class="fi"><label>${t('agenda')} (македонски)</label><textarea id="edit_agenda_mk">${escapeHtml(m.agenda_mk || '')}</textarea></div>
+                        <div class="fi"><label>${t('agenda')} (англиски)</label><textarea id="edit_agenda_en">${escapeHtml(m.agenda_en || '')}</textarea></div>
+                        <div class="fi"><label>${t('minutes')} (македонски)</label><textarea id="edit_minutes_mk">${escapeHtml(m.minutes_mk || '')}</textarea></div>
+                        <div class="fi"><label>${t('minutes')} (англиски)</label><textarea id="edit_minutes_en">${escapeHtml(m.minutes_en || '')}</textarea></div>
+                        <div class="fi"><label>${t('decisions')} (македонски)</label><textarea id="edit_decisions_mk">${escapeHtml(m.decisions_mk || '')}</textarea></div>
+                        <div class="fi"><label>${t('decisions')} (англиски)</label><textarea id="edit_decisions_en">${escapeHtml(m.decisions_en || '')}</textarea></div>
                         <div class="action-group" style="display:flex; gap:8px; margin-top:15px; flex-wrap:wrap;">
                             <button class="btn btn-primary" onclick="saveMeeting()">💾 ${t('save')}</button>
                             ${currentUser.isAdmin ? `<button class="btn btn-danger" onclick="deleteMeetingFromModal()">🗑️ ${t('delete')}</button>` : ''}
                         </div>
                     ` : `
-                        <div><strong>${t('title')}:</strong> ${escapeHtml(m.title_mk)}</div>
-                        <div class="meta">📅 ${m.date} | ⏰ ${m.time} | 📍 ${escapeHtml(m.location)}</div>
+                        <div><strong>${t('title')}:</strong> ${escapeHtml(m.title_mk || '')}</div>
+                        <div class="meta">📅 ${m.date || ''} | ⏰ ${m.time || ''} | 📍 ${escapeHtml(m.location || '')}</div>
                         <div><strong>👥 ${t('attendees')}:</strong> ${escapeHtml(m.attendees || '')}</div>
                         <hr style="margin:10px 0;">
                         <div><strong>📋 ${t('agenda')}:</strong><br>${escapeHtml(m.agenda_mk || '').replace(/\n/g,'<br>')}</div>
@@ -439,7 +439,7 @@
 
     function exportMeetingMinutes(meeting) {
         const consents = meeting.consents || [];
-        const attendees = meeting.attendees ? meeting.attendees.split(',').map(s => s.trim()) : [];
+        const attendees = meeting.attendees ? String(meeting.attendees).split(',').map(s => s.trim()) : [];
         let signaturesHtml = '<h3>' + (lang === 'mk' ? 'Потписи / Согласувања' : 'Signatures / Consents') + '</h3><table border="1" cellpadding="5" style="width:100%; border-collapse:collapse;"><thead><tr bgcolor="#f0f0f0"><th>' + (lang === 'mk' ? 'Име / Е-пошта' : 'Name / Email') + '</th><th>' + (lang === 'mk' ? 'Статус' : 'Status') + '</th><th>' + (lang === 'mk' ? 'Датум' : 'Date') + '</th></tr></thead><tbody>';
         attendees.forEach(email => {
             const user = users.find(u => u.email === email);
@@ -452,7 +452,7 @@
         const blob = new Blob([html], { type: "application/msword" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `Meeting_${meeting.title_mk.replace(/[^a-z0-9]/gi,'_')}_${meeting.date}.doc`;
+        a.download = `Meeting_${String(meeting.title_mk).replace(/[^a-z0-9]/gi,'_')}_${meeting.date || ''}.doc`;
         a.click();
         URL.revokeObjectURL(a.href);
     }
@@ -479,7 +479,7 @@
             const isToday = today.getDate() === d && today.getMonth() === calendarMonth && today.getFullYear() === calendarYear;
             const dayMeetings = meetings.filter(m => m.date === dateStr);
             let ev = "";
-            dayMeetings.forEach(m => { ev += `<div class="cal-event" onclick='openMeetingModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'>📌 ${escapeHtml(m.title_mk.substring(0,18))}</div>`; });
+            dayMeetings.forEach(m => { ev += `<div class="cal-event" onclick='openMeetingModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'>📌 ${escapeHtml(String(m.title_mk).substring(0,18))}</div>`; });
             html += `<div class="cal-day ${isToday ? 'today' : ''}"><div class="cal-day-num">${d}</div>${ev}</div>`;
         });
         html += `</div></div>`;
@@ -501,11 +501,14 @@
         if (!meetings.length) return `<div class="card"><div class="empty">${t('noMeetings')}</div></div>`;
         let html = `<div class="card"><div class="card-header"><span class="card-title">📋 ${t('meetings')}</span></div>`;
         meetings.forEach(m => {
+            const safeTitle = m.title_mk || 'Без наслов';
+            const safeLocation = m.location || '';
+            const safeAttendees = m.attendees || '';
             const isConsented = hasUserConsented(m);
             html += `
                 <div class="meeting-list-item" onclick='openMeetingModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'>
-                    <div><strong class="meeting-title">${escapeHtml(m.title_mk)}</strong> <span class="badge open">${lang === 'mk' ? 'Активен' : 'Active'}</span></div>
-                    <div class="meta">📅 ${m.date} | 📍 ${escapeHtml(m.location)} | 👥 ${escapeHtml(m.attendees || '')}</div>
+                    <div><strong class="meeting-title">${escapeHtml(safeTitle)}</strong> <span class="badge open">${lang === 'mk' ? 'Активен' : 'Active'}</span></div>
+                    <div class="meta">📅 ${m.date || ''} | 📍 ${escapeHtml(safeLocation)} | 👥 ${escapeHtml(safeAttendees)}</div>
                     <div class="action-group" style="display:flex; gap:8px; justify-content:flex-end;" onclick="event.stopPropagation()">
                         <button class="btn consent-btn ${isConsented ? 'active' : ''}" onclick="toggleConsent(${m.id})">${isConsented ? t('agreed') : t('agree')}</button>
                         <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>${t('exportReport')}</button>
@@ -699,6 +702,18 @@
 
     function setLanguage(l) { lang = l; renderApp(); }
 
+    // ПОПРАВЕНА escapeHtml ФУНКЦИЈА
+    function escapeHtml(str) { 
+        if (!str) return ''; 
+        if (typeof str !== 'string') str = String(str);
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
     window.doLogin = async function() {
         const email = document.getElementById('loginEmail').value;
         const pwd = document.getElementById('loginPassword').value;
@@ -726,8 +741,6 @@
     window.setLanguage = setLanguage;
     window.openMeetingModal = openMeetingModal;
     window.closeModal = closeModal;
-
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
     async function init() {
         await loadUsers();
