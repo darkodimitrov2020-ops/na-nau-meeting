@@ -56,6 +56,10 @@
         .login-logo { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
         .login-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #1e40af, #3b82f6); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: white; }
         .error-msg { background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; font-size: 0.75rem; margin-bottom: 1rem; text-align: center; }
+        .success-msg { background: #dcfce7; color: #166534; padding: 10px; border-radius: 8px; font-size: 0.75rem; margin-bottom: 1rem; text-align: center; }
+        .lang-switch { display: flex; gap: 5px; margin-left: 15px; }
+        .lang-btn { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
+        .lang-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
         @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -75,6 +79,123 @@
     let currentTab = "meetings";
     let calendarYear = new Date().getFullYear();
     let calendarMonth = new Date().getMonth();
+    let lang = "mk"; // mk или en
+
+    // ============================================
+    // ПРЕВОДИ
+    // ============================================
+    const translations = {
+        mk: {
+            appTitle: "NA-NAU Meeting Management",
+            appSub: "Систем за согласување на состаноци",
+            meetings: "📋 Состаноци",
+            newMeeting: "➕ Нов состанок",
+            calendar: "📅 Календар",
+            stats: "📊 Статистика",
+            employees: "👥 Вработени",
+            settings: "⚙️ Поставки",
+            loginTitle: "Најава со е-пошта и лозинка",
+            email: "Е-пошта",
+            password: "Лозинка",
+            login: "Најави се",
+            defaultPasswordHint: "Дефолт лозинка: 12345",
+            logout: "Одјави се",
+            noMeetings: "Нема состаноци. Кликни \"+ Нов состанок\" за да додадеш.",
+            addMeeting: "Нов состанок",
+            title: "Наслов",
+            date: "Датум",
+            time: "Време",
+            location: "Локација",
+            attendees: "Присутни (раздвоени со запирка)",
+            agenda: "Дневен ред",
+            minutes: "Записник",
+            decisions: "Заклучоци",
+            save: "Зачувај",
+            cancel: "Откажи",
+            agree: "📝 Се согласувам",
+            agreed: "✓ Се согласив",
+            exportReport: "📄 Извештај со потписи",
+            delete: "🗑️ Избриши",
+            resetPassword: "Ресетирај лозинка",
+            changePassword: "Промени лозинка",
+            oldPassword: "Стара лозинка",
+            newPassword: "Нова лозинка",
+            confirmPassword: "Потврди нова лозинка",
+            change: "Промени",
+            addUser: "Додади вработен",
+            name: "Име и презиме",
+            position: "Функција",
+            isAdmin: "Администратор",
+            canApprove: "Може да одобрува",
+            total: "Вкупно состаноци",
+            totalConsents: "Дадени согласувања",
+            errorUserNotFound: "Нема корисник со оваа е-пошта",
+            errorWrongPassword: "Погрешна лозинка",
+            errorPasswordsDontMatch: "Лозинките не се совпаѓаат",
+            successPasswordChanged: "Лозинката е променета",
+            successUserAdded: "Вработениот е додаден",
+            successUserDeleted: "Вработениот е избришан",
+            confirmDelete: "Дали сте сигурни дека сакате да го избришете овој вработен?",
+            cannotDeleteSelf: "Не можете да избришете самиот себеси!",
+            enterTitle: "Внесете наслов!"
+        },
+        en: {
+            appTitle: "NA-NAU Meeting Management",
+            appSub: "Meeting Consent System",
+            meetings: "📋 Meetings",
+            newMeeting: "➕ New Meeting",
+            calendar: "📅 Calendar",
+            stats: "📊 Statistics",
+            employees: "👥 Employees",
+            settings: "⚙️ Settings",
+            loginTitle: "Login with email and password",
+            email: "Email",
+            password: "Password",
+            login: "Login",
+            defaultPasswordHint: "Default password: 12345",
+            logout: "Logout",
+            noMeetings: "No meetings. Click '+ New Meeting' to add one.",
+            addMeeting: "New Meeting",
+            title: "Title",
+            date: "Date",
+            time: "Time",
+            location: "Location",
+            attendees: "Attendees (comma separated)",
+            agenda: "Agenda",
+            minutes: "Minutes",
+            decisions: "Decisions",
+            save: "Save",
+            cancel: "Cancel",
+            agree: "📝 I agree",
+            agreed: "✓ I agreed",
+            exportReport: "📄 Report with signatures",
+            delete: "🗑️ Delete",
+            resetPassword: "Reset password",
+            changePassword: "Change password",
+            oldPassword: "Old password",
+            newPassword: "New password",
+            confirmPassword: "Confirm new password",
+            change: "Change",
+            addUser: "Add employee",
+            name: "Full name",
+            position: "Position",
+            isAdmin: "Administrator",
+            canApprove: "Can approve",
+            total: "Total meetings",
+            totalConsents: "Total consents",
+            errorUserNotFound: "User not found",
+            errorWrongPassword: "Wrong password",
+            errorPasswordsDontMatch: "Passwords do not match",
+            successPasswordChanged: "Password changed successfully",
+            successUserAdded: "Employee added successfully",
+            successUserDeleted: "Employee deleted successfully",
+            confirmDelete: "Are you sure you want to delete this employee?",
+            cannotDeleteSelf: "You cannot delete yourself!",
+            enterTitle: "Please enter a title!"
+        }
+    };
+
+    function t(key) { return translations[lang][key] || key; }
 
     // ============================================
     // API ПОВИЦИ
@@ -135,9 +256,10 @@
     async function saveMeetingToCloud(meeting) { return await apiPost('saveMeeting', meeting); }
     async function deleteMeetingFromCloud(id) { return await apiPost('deleteMeeting', { id: id }); }
     async function saveUserToCloud(user) { return await apiPost('saveUser', user); }
+    async function deleteUserFromCloud(id) { return await apiPost('deleteUser', { id: id }); }
 
     // ============================================
-    // ФУНКЦИИ ЗА СОГЛАСУВАЊЕ (ПОПРАВЕНИ)
+    // ФУНКЦИИ ЗА СОГЛАСУВАЊЕ
     // ============================================
     function hasUserConsented(meeting) {
         if (!currentUser) return false;
@@ -163,20 +285,97 @@
     }
 
     // ============================================
-    // АДМИНИСТРАЦИЈА: РЕСЕТ ЛОЗИНКА
+    // ПРОМЕНА НА ЛОЗИНКА
     // ============================================
-    async function resetUserPassword(userId) {
-        if (!currentUser?.isAdmin) {
-            alert("Само администратор може да ресетира лозинки!");
+    async function changePassword() {
+        const oldPwd = document.getElementById('oldPassword')?.value;
+        const newPwd = document.getElementById('newPassword')?.value;
+        const confirmPwd = document.getElementById('confirmPassword')?.value;
+        
+        if (!oldPwd || !newPwd || !confirmPwd) {
+            alert("Пополнете ги сите полиња!");
             return;
         }
-        const user = users.find(u => u.id === userId);
-        if (!user) return;
-        user.password = DEFAULT_PASSWORD;
-        await saveUserToCloud(user);
-        alert(`Лозинката за ${user.name} е ресетирана на 12345`);
+        if (currentUser.password !== oldPwd) {
+            alert(t('errorWrongPassword'));
+            return;
+        }
+        if (newPwd !== confirmPwd) {
+            alert(t('errorPasswordsDontMatch'));
+            return;
+        }
+        if (newPwd.length < 4) {
+            alert("Лозинката мора да има најмалку 4 карактери!");
+            return;
+        }
+        
+        currentUser.password = newPwd;
+        await saveUserToCloud(currentUser);
+        alert(t('successPasswordChanged'));
+        
+        // Освежи ги корисниците
         await loadUsers();
         renderApp();
+    }
+
+    // ============================================
+    // ДОДАВАЊЕ И БРИСЕЊЕ НА КОРИСНИЦИ (само админ)
+    // ============================================
+    async function addNewUser() {
+        if (!currentUser?.isAdmin) {
+            alert("Само администратор може да додава вработени!");
+            return;
+        }
+        const name = document.getElementById('newUserName')?.value.trim();
+        const email = document.getElementById('newUserEmail')?.value.trim();
+        const position = document.getElementById('newUserPosition')?.value;
+        const isAdmin = document.getElementById('newUserIsAdmin')?.checked;
+        
+        if (!name || !email) {
+            alert("Внесете име и е-пошта!");
+            return;
+        }
+        if (users.find(u => u.email === email)) {
+            alert("Веќе постои корисник со оваа е-пошта!");
+            return;
+        }
+        
+        const newId = Math.max(...users.map(u => u.id), 0) + 1;
+        const newUser = {
+            id: newId,
+            name: name,
+            email: email,
+            position: position || "Службеник",
+            password: DEFAULT_PASSWORD,
+            isAdmin: isAdmin || false
+        };
+        
+        await saveUserToCloud(newUser);
+        await loadUsers();
+        alert(t('successUserAdded'));
+        
+        // Избриши ги полињата
+        document.getElementById('newUserName').value = "";
+        document.getElementById('newUserEmail').value = "";
+        document.getElementById('newUserIsAdmin').checked = false;
+        renderApp();
+    }
+
+    async function deleteUser(userId) {
+        if (!currentUser?.isAdmin) {
+            alert("Само администратор може да брише вработени!");
+            return;
+        }
+        if (userId === currentUser.id) {
+            alert(t('cannotDeleteSelf'));
+            return;
+        }
+        if (confirm(t('confirmDelete'))) {
+            await deleteUserFromCloud(userId);
+            await loadUsers();
+            alert(t('successUserDeleted'));
+            renderApp();
+        }
     }
 
     // ============================================
@@ -190,10 +389,10 @@
         
         const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
         if (!user) {
-            return { success: false, error: "Нема корисник со оваа е-пошта" };
+            return { success: false, error: t('errorUserNotFound') };
         }
         if (user.password !== password) {
-            return { success: false, error: "Погрешна лозинка" };
+            return { success: false, error: t('errorWrongPassword') };
         }
         currentUser = user;
         await loadMeetings();
@@ -211,7 +410,7 @@
     // ============================================
     async function submitNewMeeting() {
         const title_mk = document.getElementById("title_mk")?.value;
-        if (!title_mk) { alert("Внесете наслов!"); return; }
+        if (!title_mk) { alert(t('enterTitle')); return; }
 
         const meetingData = {
             id: -1,
@@ -233,7 +432,7 @@
             created_by_name: currentUser.name
         };
         await saveMeetingToCloud(meetingData);
-        alert("✅ Состанокот е зачуван!");
+        alert("✅ " + t('save'));
         currentTab = "meetings";
         await loadMeetings();
     }
@@ -250,19 +449,19 @@
     function exportMeetingMinutes(meeting) {
         const consents = meeting.consents || [];
         const attendees = meeting.attendees ? meeting.attendees.split(',').map(s => s.trim()) : [];
-        let signaturesHtml = '<h3>Потписи / Согласувања</h3><table border="1" cellpadding="5" style="width:100%; border-collapse:collapse;"><thead><tr bgcolor="#f0f0f0"><th>Име / Е-пошта</th><th>Потпис / Статус</th><th>Датум</th></tr></thead><tbody>';
+        let signaturesHtml = '<h3>' + (lang === 'mk' ? 'Потписи / Согласувања' : 'Signatures / Consents') + '</h3><table border="1" cellpadding="5" style="width:100%; border-collapse:collapse;"><thead><tr bgcolor="#f0f0f0"><th>' + (lang === 'mk' ? 'Име / Е-пошта' : 'Name / Email') + '</th><th>' + (lang === 'mk' ? 'Потпис / Статус' : 'Signature / Status') + '</th><th>' + (lang === 'mk' ? 'Датум' : 'Date') + '</th></tr></thead><tbody>';
         attendees.forEach(email => {
             const user = users.find(u => u.email === email);
             const name = user ? user.name : email;
             const hasConsented = consents.includes(email);
-            signaturesHtml += `<tr><td>${escapeHtml(name)} (${escapeHtml(email)})</td><td>${hasConsented ? '✓ СЕ СОГЛАСУВАМ' : '___________'}</td><td>${hasConsented ? new Date().toLocaleDateString() : ''}</td></tr>`;
+            signaturesHtml += `<tr><td>${escapeHtml(name)} (${escapeHtml(email)})</td><td>${hasConsented ? '✓ ' + (lang === 'mk' ? 'СЕ СОГЛАСУВАМ' : 'I AGREE') : '___________'}</td><td>${hasConsented ? new Date().toLocaleDateString() : ''}</td></tr>`;
         });
-        signaturesHtml += '</tbody></tr>';
-        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(meeting.title_mk)} - Записник</title></head><body><h1>ЗАПИСНИК ОД СОСТАНОК</h1><h2>${escapeHtml(meeting.title_mk)}</h2><p><strong>Датум:</strong> ${meeting.date}<br><strong>Локација:</strong> ${escapeHtml(meeting.location)}</p><h3>Дневен ред</h3><p>${escapeHtml(meeting.agenda_mk || '').replace(/\n/g,'<br>')}</p><h3>Записник</h3><p>${escapeHtml(meeting.minutes_mk || '').replace(/\n/g,'<br>')}</p><h3>Заклучоци</h3><p>${escapeHtml(meeting.decisions_mk || '').replace(/\n/g,'<br>')}</p>${signaturesHtml}<footer><p>Генерирано од NA-NAU · ${new Date().toLocaleString()}</p></footer></body></html>`;
+        signaturesHtml += '</tbody></table>';
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(meeting.title_mk)} - ${lang === 'mk' ? 'Записник' : 'Minutes'}</title></head><body><h1>${lang === 'mk' ? 'ЗАПИСНИК ОД СОСТАНОК' : 'MEETING MINUTES'}</h1><h2>${escapeHtml(lang === 'mk' ? meeting.title_mk : (meeting.title_en || meeting.title_mk))}</h2><p><strong>${t('date')}:</strong> ${meeting.date}<br><strong>${t('location')}:</strong> ${escapeHtml(meeting.location)}</p><h3>${t('agenda')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.agenda_mk : (meeting.agenda_en || meeting.agenda_mk)).replace(/\n/g,'<br>')}</p><h3>${t('minutes')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.minutes_mk : (meeting.minutes_en || meeting.minutes_mk)).replace(/\n/g,'<br>')}</p><h3>${t('decisions')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.decisions_mk : (meeting.decisions_en || meeting.decisions_mk)).replace(/\n/g,'<br>')}</p>${signaturesHtml}<footer><p>NA-NAU · ${new Date().toLocaleString()}</p></footer></body></html>`;
         const blob = new Blob([html], { type: "application/msword" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `Zapisnik_${meeting.title_mk.replace(/[^a-z0-9]/gi,'_')}_${meeting.date}.doc`;
+        a.download = `Meeting_${meeting.title_mk.replace(/[^a-z0-9]/gi,'_')}_${meeting.date}.doc`;
         a.click();
         URL.revokeObjectURL(a.href);
     }
@@ -271,7 +470,7 @@
     // РЕНДЕРИРАЊЕ
     // ============================================
     function renderCalendar() {
-        const monthNames = ["јануари","февруари","март","април","мај","јуни","јули","август","септември","октомври","ноември","декември"];
+        const monthNames = lang === "mk" ? ["јануари","февруари","март","април","мај","јуни","јули","август","септември","октомври","ноември","декември"] : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
         const daysInMonth = new Date(calendarYear, calendarMonth+1, 0).getDate();
         const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
         const start = firstDay === 0 ? 6 : firstDay - 1;
@@ -280,7 +479,8 @@
         for (let d=1; d<=daysInMonth; d++) days.push(d);
         while (days.length < 42) days.push(null);
         let html = `<div class="card"><div class="month-nav"><button class="btn btn-sm" id="prevMonthBtn">◀</button><strong>${monthNames[calendarMonth]} ${calendarYear}</strong><button class="btn btn-sm" id="nextMonthBtn">▶</button></div><div class="calendar-grid">`;
-        ["Пон","Вто","Сре","Чет","Пет","Саб","Нед"].forEach(d => html += `<div style="text-align:center; font-weight:600;">${d}</div>`);
+        const weekDays = lang === "mk" ? ["Пон","Вто","Сре","Чет","Пет","Саб","Нед"] : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+        weekDays.forEach(d => html += `<div style="text-align:center; font-weight:600;">${d}</div>`);
         days.forEach(d => {
             if (d === null) { html += `<div class="cal-day" style="opacity:0.3;"></div>`; return; }
             const dateStr = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -296,27 +496,27 @@
     function renderStats() {
         const total = meetings.length;
         const totalConsents = meetings.reduce((sum, m) => sum + (m.consents?.length || 0), 0);
-        return `<div class="card"><div class="card-header"><span class="card-title">📊 Статистика</span></div>
+        return `<div class="card"><div class="card-header"><span class="card-title">📊 ${t('stats')}</span></div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; text-align:center;">
-                <div><div style="font-size:2rem; font-weight:800;">${total}</div><div>Вкупно состаноци</div></div>
-                <div><div style="font-size:2rem; font-weight:800; color:#166534;">${totalConsents}</div><div>Дадени согласувања</div></div>
+                <div><div style="font-size:2rem; font-weight:800;">${total}</div><div>${t('total')}</div></div>
+                <div><div style="font-size:2rem; font-weight:800; color:#166534;">${totalConsents}</div><div>${t('totalConsents')}</div></div>
             </div>
         </div>`;
     }
 
     function renderMeetings() {
-        if (!meetings.length) return `<div class="card"><div class="empty">Нема состаноци. Кликни "+ Нов состанок" за да додадеш.</div></div>`;
-        let html = `<div class="card"><div class="card-header"><span class="card-title">📋 Сите состаноци</span></div>`;
+        if (!meetings.length) return `<div class="card"><div class="empty">${t('noMeetings')}</div></div>`;
+        let html = `<div class="card"><div class="card-header"><span class="card-title">📋 ${t('meetings')}</span></div>`;
         meetings.forEach(m => {
             const isConsented = hasUserConsented(m);
             html += `<div class="meeting-row">
-                <div><strong>${escapeHtml(m.title_mk)}</strong> <span class="badge open">Активен</span></div>
+                <div><strong>${escapeHtml(m.title_mk)}</strong> <span class="badge open">${lang === 'mk' ? 'Активен' : 'Active'}</span></div>
                 <div class="meta">📅 ${m.date} | 📍 ${escapeHtml(m.location)}</div>
-                <div class="meta">👥 Присутни: ${escapeHtml(m.attendees || '')}</div>
+                <div class="meta">👥 ${t('attendees')}: ${escapeHtml(m.attendees || '')}</div>
                 <div class="action-group">
-                    <button class="btn consent-btn ${isConsented ? 'active' : ''}" onclick="toggleConsent(${m.id})">${isConsented ? '✓ Се согласив' : '📝 Се согласувам'}</button>
-                    <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>📄 Извештај со потписи</button>
-                    ${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>🗑️ Избриши</button>` : ''}
+                    <button class="btn consent-btn ${isConsented ? 'active' : ''}" onclick="toggleConsent(${m.id})">${isConsented ? t('agreed') : t('agree')}</button>
+                    <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>${t('exportReport')}</button>
+                    ${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>${t('delete')}</button>` : ''}
                 </div>
             </div>`;
         });
@@ -325,69 +525,79 @@
     }
 
     function renderForm() {
-        return `<div class="card"><div class="card-header"><span class="card-title">➕ Нов состанок</span></div>
-            <div class="fi"><label>Наслов (македонски)*</label><input type="text" id="title_mk"></div>
-            <div class="fi"><label>Наслов (англиски)</label><input type="text" id="title_en"></div>
-            <div class="grid-2"><div class="fi"><label>Датум</label><input type="date" id="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="fi"><label>Време</label><input type="time" id="time" value="10:00"></div></div>
-            <div class="fi"><label>Локација</label><input type="text" id="location"></div>
-            <div class="fi"><label>Присутни (раздвоени со запирка)</label><input type="text" id="attendees" placeholder="Дарко Димитров, Ана Костовска, ..."></div>
-            <div class="fi"><label>Дневен ред (македонски)</label><textarea id="agenda_mk" rows="3"></textarea></div>
-            <div class="fi"><label>Дневен ред (англиски)</label><textarea id="agenda_en" rows="3"></textarea></div>
-            <div class="fi"><label>Записник (македонски)</label><textarea id="minutes_mk" rows="4"></textarea></div>
-            <div class="fi"><label>Записник (англиски)</label><textarea id="minutes_en" rows="4"></textarea></div>
-            <div class="fi"><label>Заклучоци (македонски)</label><textarea id="decisions_mk" rows="3"></textarea></div>
-            <div class="fi"><label>Заклучоци (англиски)</label><textarea id="decisions_en" rows="3"></textarea></div>
-            <div class="action-group"><button class="btn btn-primary" onclick="submitNewMeeting()">💾 Зачувај</button><button class="btn" onclick="cancelForm()">Откажи</button></div>
+        return `<div class="card"><div class="card-header"><span class="card-title">➕ ${t('addMeeting')}</span></div>
+            <div class="fi"><label>${t('title')} (македонски)*</label><input type="text" id="title_mk"></div>
+            <div class="fi"><label>${t('title')} (англиски)</label><input type="text" id="title_en"></div>
+            <div class="grid-2"><div class="fi"><label>${t('date')}</label><input type="date" id="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="fi"><label>${t('time')}</label><input type="time" id="time" value="10:00"></div></div>
+            <div class="fi"><label>${t('location')}</label><input type="text" id="location"></div>
+            <div class="fi"><label>${t('attendees')}</label><input type="text" id="attendees" placeholder="darko.dimitrov@na.org.mk, ana@na.org.mk, ..."></div>
+            <div class="fi"><label>${t('agenda')} (македонски)</label><textarea id="agenda_mk" rows="3"></textarea></div>
+            <div class="fi"><label>${t('agenda')} (англиски)</label><textarea id="agenda_en" rows="3"></textarea></div>
+            <div class="fi"><label>${t('minutes')} (македонски)</label><textarea id="minutes_mk" rows="4"></textarea></div>
+            <div class="fi"><label>${t('minutes')} (англиски)</label><textarea id="minutes_en" rows="4"></textarea></div>
+            <div class="fi"><label>${t('decisions')} (македонски)</label><textarea id="decisions_mk" rows="3"></textarea></div>
+            <div class="fi"><label>${t('decisions')} (англиски)</label><textarea id="decisions_en" rows="3"></textarea></div>
+            <div class="action-group"><button class="btn btn-primary" onclick="submitNewMeeting()">💾 ${t('save')}</button><button class="btn" onclick="cancelForm()">${t('cancel')}</button></div>
+        </div>`;
+    }
+
+    function renderChangePassword() {
+        return `<div class="card"><div class="card-header"><span class="card-title">🔒 ${t('changePassword')}</span></div>
+            <div class="fi"><label>${t('oldPassword')}</label><input type="password" id="oldPassword"></div>
+            <div class="fi"><label>${t('newPassword')}</label><input type="password" id="newPassword"></div>
+            <div class="fi"><label>${t('confirmPassword')}</label><input type="password" id="confirmPassword"></div>
+            <button class="btn btn-primary" onclick="changePassword()">${t('change')}</button>
         </div>`;
     }
 
     function renderEmployees() {
-        if (!currentUser.isAdmin) return `<div class="card"><div class="empty">Немате права да ги гледате вработените.</div></div>`;
-        return `<div class="card"><div class="card-header"><span class="card-title">👥 Вработени</span></div>
+        if (!currentUser.isAdmin) return `<div class="card"><div class="empty">${lang === 'mk' ? 'Немате права да ги гледате вработените.' : 'You do not have permission to view employees.'}</div></div>`;
+        return `<div class="card"><div class="card-header"><span class="card-title">👥 ${t('employees')}</span></div>
             <div class="employee-grid">
                 ${users.map(u => `<div style="background:#f8fafc; border-radius:12px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><strong>${escapeHtml(u.name)}</strong><br><small>${escapeHtml(u.position)}</small><br><small>📧 ${escapeHtml(u.email)}</small></div>
-                    <button class="btn btn-sm" onclick="resetUserPassword(${u.id})">Ресетирај лозинка</button>
+                    <div><strong>${escapeHtml(u.name)}</strong><br><small>${escapeHtml(u.position)}</small><br><small>📧 ${escapeHtml(u.email)}</small><br>${u.isAdmin ? '👑 ' + t('isAdmin') : ''}</div>
+                    <div><button class="btn btn-sm" onclick="resetUserPassword(${u.id})">${t('resetPassword')}</button>
+                    ${u.id !== currentUser.id ? `<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">${t('delete')}</button>` : ''}</div>
                 </div>`).join('')}
             </div>
         </div>`;
     }
 
     function renderSettings() {
-        if (!currentUser.isAdmin) return `<div class="card"><div class="empty">Немате администраторски права.</div></div>`;
-        return `<div class="card"><div class="card-header"><span class="card-title">⚙️ Администрација</span></div>
+        if (!currentUser.isAdmin) return `<div class="card"><div class="empty">${lang === 'mk' ? 'Немате администраторски права.' : 'You do not have admin rights.'}</div></div>`;
+        return `<div class="card"><div class="card-header"><span class="card-title">⚙️ ${t('settings')} - ${t('addUser')}</span></div>
+            <div style="background:#dbeafe; border-radius:12px; padding:20px; margin-bottom:20px;">
+                <div class="grid-2">
+                    <div class="fi"><label>${t('name')}</label><input type="text" id="newUserName" placeholder="пр. Петар Петровски"></div>
+                    <div class="fi"><label>Email</label><input type="email" id="newUserEmail" placeholder="email@na.org.mk"></div>
+                    <div class="fi"><label>${t('position')}</label><input type="text" id="newUserPosition" placeholder="Службеник"></div>
+                </div>
+                <div style="margin:10px 0;"><label><input type="checkbox" id="newUserIsAdmin"> 👑 ${t('isAdmin')}</label></div>
+                <button class="btn btn-primary" onclick="addNewUser()">➕ ${t('addUser')}</button>
+            </div>
+            <div class="card-title">📋 ${t('employees')}</div>
             <div class="employee-grid">
-                ${users.map(u => `<div style="background:#f8fafc; border-radius:12px; padding:12px;">
-                    <div><strong>${escapeHtml(u.name)}</strong> (${escapeHtml(u.position)})<br>📧 ${escapeHtml(u.email)}</div>
-                    <button class="btn btn-sm" onclick="resetUserPassword(${u.id})" style="margin-top:8px;">🔄 Ресетирај лозинка (12345)</button>
+                ${users.map(u => `<div style="background:#f8fafc; border-radius:12px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <div><strong>${escapeHtml(u.name)}</strong><br><small>${escapeHtml(u.position)}</small><br><small>📧 ${escapeHtml(u.email)}</small><br>${u.isAdmin ? '👑 ' + t('isAdmin') : ''}</div>
+                    <div><button class="btn btn-sm" onclick="resetUserPassword(${u.id})">${t('resetPassword')}</button>
+                    ${u.id !== currentUser.id ? `<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">${t('delete')}</button>` : ''}</div>
                 </div>`).join('')}
             </div>
         </div>`;
     }
 
-    function renderLogin() {
-        return `<div class="login-container">
-            <div class="login-header">
-                <div class="login-logo"><div class="login-icon">НА</div><div class="login-icon">МОН</div></div>
-                <div class="login-title">NA-NAU Meeting Management</div>
-                <div class="login-sub">Најава со е-пошта и лозинка</div>
-            </div>
-            <div id="loginError" class="error-msg" style="display:none;"></div>
-            <div class="input-group"><label>Е-пошта</label><input type="email" id="loginEmail" placeholder="email@na.org.mk"></div>
-            <div class="input-group"><label>Лозинка</label><input type="password" id="loginPassword" placeholder="********"></div>
-            <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">Најави се</button>
-            <div style="margin-top:15px; font-size:11px; color:#64748b; text-align:center;">Дефолт лозинка: 12345</div>
-        </div>`;
-    }
-
+    // ============================================
+    // ГЛАВНО РЕНДЕРИРАЊЕ
+    // ============================================
     function renderMainApp() {
         const tabs = [
-            { id: "meetings", label: "📋 Состаноци" },
-            { id: "new", label: "➕ Нов состанок" },
-            { id: "calendar", label: "📅 Календар" },
-            { id: "stats", label: "📊 Статистика" },
-            { id: "employees", label: "👥 Вработени" },
-            { id: "settings", label: "⚙️ Поставки" }
+            { id: "meetings", label: t('meetings') },
+            { id: "new", label: t('newMeeting') },
+            { id: "calendar", label: t('calendar') },
+            { id: "stats", label: t('stats') },
+            { id: "employees", label: t('employees') },
+            { id: "settings", label: t('settings') },
+            { id: "profile", label: "🔐 " + t('changePassword') }
         ];
         let tabsHtml = `<div class="tabs">`;
         tabs.forEach(tab => {
@@ -401,7 +611,27 @@
         else if (currentTab === "stats") content = renderStats();
         else if (currentTab === "employees") content = renderEmployees();
         else if (currentTab === "settings") content = renderSettings();
+        else if (currentTab === "profile") content = renderChangePassword();
         return tabsHtml + content;
+    }
+
+    function renderLogin() {
+        return `<div class="login-container">
+            <div class="login-header">
+                <div class="login-logo"><div class="login-icon">НА</div><div class="login-icon">МОН</div></div>
+                <div class="login-title">${t('appTitle')}</div>
+                <div class="login-sub">${t('loginTitle')}</div>
+                <div class="lang-switch" style="justify-content:center; margin-top:10px;">
+                    <button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰 МКД</button>
+                    <button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧 EN</button>
+                </div>
+            </div>
+            <div id="loginError" class="error-msg" style="display:none;"></div>
+            <div class="input-group"><label>${t('email')}</label><input type="email" id="loginEmail" placeholder="email@na.org.mk"></div>
+            <div class="input-group"><label>${t('password')}</label><input type="password" id="loginPassword" placeholder="********"></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">${t('login')}</button>
+            <div style="margin-top:15px; font-size:11px; color:#64748b; text-align:center;">${t('defaultPasswordHint')}</div>
+        </div>`;
     }
 
     function renderApp() {
@@ -417,12 +647,18 @@
                             <div class="logo-text"><strong>НАЕОПМ</strong><br>Скопје</div>
                             <div class="logo-icon">МОН</div>
                             <div class="logo-text"><strong>Министерство за<br>образование и наука</strong></div>
-                            <div><div class="hdr-title">NA-NAU <span class="hdr-accent">Meeting<br>Management</span></div>
-                            <div class="hdr-sub">Систем за согласување на состаноци</div></div>
+                            <div>
+                                <div class="hdr-title">NA-NAU <span class="hdr-accent">Meeting<br>Management</span></div>
+                                <div class="hdr-sub">${t('appSub')}</div>
+                            </div>
                         </div>
                         <div class="user-panel">
+                            <div class="lang-switch">
+                                <button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰 МКД</button>
+                                <button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧 EN</button>
+                            </div>
                             <div class="user-info">${escapeHtml(currentUser.name)} (${escapeHtml(currentUser.position)})</div>
-                            <button class="btn-logout" onclick="logout()">Одјави се</button>
+                            <button class="btn-logout" onclick="logout()">${t('logout')}</button>
                         </div>
                     </div>
                     ${renderMainApp()}
@@ -442,6 +678,28 @@
         }
     }
 
+    // ============================================
+    // ХЕЛПЕР ФУНКЦИИ
+    // ============================================
+    async function resetUserPassword(userId) {
+        if (!currentUser?.isAdmin) {
+            alert("Само администратор може да ресетира лозинки!");
+            return;
+        }
+        const user = users.find(u => u.id === userId);
+        if (!user) return;
+        user.password = DEFAULT_PASSWORD;
+        await saveUserToCloud(user);
+        alert(`Лозинката за ${user.name} е ресетирана на ${DEFAULT_PASSWORD}`);
+        await loadUsers();
+        renderApp();
+    }
+
+    function setLanguage(l) {
+        lang = l;
+        renderApp();
+    }
+
     window.doLogin = async function() {
         const email = document.getElementById('loginEmail').value;
         const pwd = document.getElementById('loginPassword').value;
@@ -459,6 +717,10 @@
     window.exportMeetingMinutes = exportMeetingMinutes;
     window.resetUserPassword = resetUserPassword;
     window.cancelForm = cancelForm;
+    window.changePassword = changePassword;
+    window.addNewUser = addNewUser;
+    window.deleteUser = deleteUser;
+    window.setLanguage = setLanguage;
 
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
