@@ -172,7 +172,7 @@
                 consents: Array.isArray(m.consents) ? m.consents : []
             }));
         } else { meetings = []; }
-        renderApp();
+        if (currentUser) renderApp();
     }
 
     async function loadUsers() {
@@ -291,10 +291,12 @@
     // АВТЕНТИКАЦИЈА
     // ============================================
     async function login(email, password) {
-        email = email.trim();
+        email = email.trim().toLowerCase();
         password = password.trim();
+        
         await loadUsers();
-        const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+        
+        const user = users.find(u => u.email.toLowerCase() === email);
         if (!user) return { success: false, error: t('errorUserNotFound') };
         if (user.password !== password) return { success: false, error: t('errorWrongPassword') };
         currentUser = user;
@@ -306,7 +308,7 @@
     function logout() { currentUser = null; renderApp(); }
 
     // ============================================
-    // КРЕИРАЊЕ/УРЕДУВАЊЕ/БРИСЕЊЕ НА СОСТАНОЦИ (АДМИН МОЖЕ ДА БРИШЕ)
+    // КРЕИРАЊЕ/УРЕДУВАЊЕ/БРИСЕЊЕ НА СОСТАНОЦИ
     // ============================================
     async function saveMeeting() {
         const title_mk = document.getElementById('edit_title_mk')?.value;
@@ -477,7 +479,7 @@
             const isToday = today.getDate() === d && today.getMonth() === calendarMonth && today.getFullYear() === calendarYear;
             const dayMeetings = meetings.filter(m => m.date === dateStr);
             let ev = "";
-            dayMeetings.forEach(m => { ev += `<div class="cal-event" onclick="openMeetingModal(${JSON.stringify(m).replace(/"/g, '&quot;')})">📌 ${escapeHtml(m.title_mk.substring(0,18))}</div>`; });
+            dayMeetings.forEach(m => { ev += `<div class="cal-event" onclick='openMeetingModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'>📌 ${escapeHtml(m.title_mk.substring(0,18))}</div>`; });
             html += `<div class="cal-day ${isToday ? 'today' : ''}"><div class="cal-day-num">${d}</div>${ev}</div>`;
         });
         html += `</div></div>`;
@@ -501,7 +503,7 @@
         meetings.forEach(m => {
             const isConsented = hasUserConsented(m);
             html += `
-                <div class="meeting-list-item" onclick="openMeetingModal(${JSON.stringify(m).replace(/"/g, '&quot;')})">
+                <div class="meeting-list-item" onclick='openMeetingModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'>
                     <div><strong class="meeting-title">${escapeHtml(m.title_mk)}</strong> <span class="badge open">${lang === 'mk' ? 'Активен' : 'Active'}</span></div>
                     <div class="meta">📅 ${m.date} | 📍 ${escapeHtml(m.location)} | 👥 ${escapeHtml(m.attendees || '')}</div>
                     <div class="action-group" style="display:flex; gap:8px; justify-content:flex-end;" onclick="event.stopPropagation()">
@@ -608,6 +610,25 @@
         </div>`;
     }
 
+    function renderLogin() {
+        return `<div class="login-container">
+            <div class="login-header">
+                <div class="login-logo"><div class="login-icon">НА</div><div class="login-icon">МОН</div></div>
+                <div class="login-title">${t('appTitle')}</div>
+                <div class="login-sub">${t('loginTitle')}</div>
+                <div class="lang-switch" style="justify-content:center; margin-top:10px;">
+                    <button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰 МКД</button>
+                    <button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧 EN</button>
+                </div>
+            </div>
+            <div id="loginError" class="error-msg" style="display:none;"></div>
+            <div class="input-group"><label>${t('email')}</label><input type="email" id="loginEmail" placeholder="email@na.org.mk" value="darko.dimitrov@na.org.mk"></div>
+            <div class="input-group"><label>${t('password')}</label><input type="password" id="loginPassword" placeholder="********" value="12345"></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">${t('login')}</button>
+            <div class="info-text" style="margin-top:15px; font-size:11px; color:#64748b; text-align:center;">Дефолт лозинка: 12345</div>
+        </div>`;
+    }
+
     function renderMainApp() {
         const tabs = [
             { id: "meetings", label: t('meetings') },
@@ -632,25 +653,6 @@
         else if (currentTab === "settings") content = renderSettings();
         else if (currentTab === "profile") content = renderChangePassword();
         return tabsHtml + content;
-    }
-
-    function renderLogin() {
-        return `<div class="login-container">
-            <div class="login-header">
-                <div class="login-logo"><div class="login-icon">НА</div><div class="login-icon">МОН</div></div>
-                <div class="login-title">${t('appTitle')}</div>
-                <div class="login-sub">${t('loginTitle')}</div>
-                <div class="lang-switch" style="justify-content:center; margin-top:10px;">
-                    <button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰 МКД</button>
-                    <button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧 EN</button>
-                </div>
-            </div>
-            <div id="loginError" class="error-msg" style="display:none;"></div>
-            <div class="input-group"><label>${t('email')}</label><input type="email" id="loginEmail" placeholder="email@na.org.mk"></div>
-            <div class="input-group"><label>${t('password')}</label><input type="password" id="loginPassword" placeholder="********"></div>
-            <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">${t('login')}</button>
-            <div style="margin-top:15px; font-size:11px; color:#64748b; text-align:center;">${t('defaultPasswordHint')}</div>
-        </div>`;
     }
 
     function renderApp() {
@@ -705,6 +707,8 @@
             const errDiv = document.getElementById('loginError');
             errDiv.style.display = 'block';
             errDiv.innerText = result.error;
+        } else {
+            renderApp();
         }
     }
 
