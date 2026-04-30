@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>NA-NAU · Meeting Management (Login System)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+            background: #f0f2f8;
+            color: #0f172a;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .app {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Login panel */
+        .login-container {
+            max-width: 450px;
+            margin: 3rem auto;
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            border: 1px solid #cbd5e1;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .login-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: white;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .login-sub {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #334155;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px #dbeafe;
+        }
+
+        .error-msg {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Header */
+        .hdr {
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #cbd5e1;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .logo-text strong {
+            color: #2563eb;
+        }
+
+        .hdr-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .hdr-accent {
+            color: #2563eb;
+        }
+
+        .user-panel {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .user-info {
+            background: #dbeafe;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            background: #fee2e2;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 4px;
+        }
+
+        .tab {
+            padding: 8px 20px;
+            border-radius: 30px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .tab:hover {
+            background: #eef2f6;
+        }
+
+        .tab.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #eef2f6;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 0.7rem;
+        }
+
+        .meeting-row {
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .badge {
+            display: inline-flex;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge.closed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge.open {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .consent-btn {
+            background: #dcfce7;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .consent-btn.active {
+            background: #166534;
+            color: white;
+            border-color: #166534;
+        }
+
+        .meta {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin: 8px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .reset-pwd {
+            background: #dbeafe;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+        }
+
+        .footer-credit {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            font-size: 0.7rem;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 640px) {
+            .employee-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="appRoot"></div>
+
+<script>
+    // ============================================
+    // КОНФИГУРАЦИЈА
+    // ============================================
+    const API_URL = "https://script.google.com/macros/s/AKfycbwHsJmv8SQY3Hb76_RHQU9657I6_dC7_Tjy_4fHGTSQgGBQBIgwGR8BQFlBBbYtW64x/exec";
+    const DEFAULT_PASSWORD = "12345";
+
+    // ============================================
+    // ГЛОБАЛНИ ПРОМЕНЛИВИ
+    // ============================================
+    let meetings = [];
+    let users = [];
+    let currentUser = null;
+    let currentTab = "meetings";
+    let editId = null;
+    let calendarYear = new Date().getFullYear();
+    let calendarMonth = new Date().getMonth();
+
+    // ============================================
+    // API ПОВИЦИ
+    // ============================================
+    async function apiGet(action) {
+        try {
+            const response = await fetch(`${API_URL}?action=${action}&_=${Date.now()}`);
+            return await response.json();
+        } catch (e) {
+            console.error(e);
+            return { success: false, error: e.message };
+        }
+    }
+
+    async function apiPost(action, data) {
+        try {
+            await fetch(`${API_URL}?action=${action}`, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify(data),
+                headers: { "Content-Type": "application/json" }
+            });
+            return { success: true };
+        } catch (e) {
+            console.error(e);
+            return { success: false, error: e.message };
+        }
+    }
+
+    async function loadMeetings() {
+        const data = await apiGet('getMeetings');
+        if (data.success && data.meetings) {
+            meetings = data.meetings.map(m => ({
+                ...m,
+                date: m.date ? m.date.split('T')[0] : m.date,
+                consents: m.consents || []  // низа на email-и на оние што се согласиле
+            }));
+        } else {
+            meetings = [];
+        }
+        if (currentUser) render();
+    }
+
+    async function loadUsers() {
+        const data = await apiGet('getUsers');
+        if (data.success && data.users && data.users.length > 0) {
+            users = data.users;
+        } else {
+            // default users
+            users = [
+                { id: 1, name: "Дарко Димитров", position: "Директор", email: "darko.dimitrov@na.org.mk", password: DEFAULT_PASSWORD, isAdmin: true },
+                { id: 2, name: "Марија Стојановска", position: "Помошник раководител", email: "marija@na.org.mk", password: DEFAULT_PASSWORD, isAdmin: false },
+                { id: 3, name: "Александар Николовски", position: "Советник", email: "aleksandar@na.org.mk", password: DEFAULT_PASSWORD, isAdmin: false },
+                { id: 4, name: "Ана Костовска", position: "Службеник", email: "ana@na.org.mk", password: DEFAULT_PASSWORD, isAdmin: false }
+            ];
+        }
+        // ensure each user has password field
+        for (let u of users) {
+            if (!u.password) u.password = DEFAULT_PASSWORD;
+            if (u.isAdmin === undefined) u.isAdmin = (u.email === "darko.dimitrov@na.org.mk");
+        }
+    }
+
+    async function saveMeetingToCloud(meeting) { return await apiPost('saveMeeting', meeting); }
+    async function deleteMeetingFromCloud(id) { return await apiPost('deleteMeeting', { id: id }); }
+    async function saveUserToCloud(user) { return await apiPost('saveUser', user); }
+    async function deleteUserFromCloud(id) { return await apiPost('deleteUser', { id: id }); }
+
+    // ============================================
+    // ФУНКЦИИ ЗА СОГЛАСУВАЊЕ
+    // ============================================
+    function hasUserConsented(meeting) {
+        if (!currentUser) return false;
+        const consents = meeting.consents || [];
+        return consents.includes(currentUser.email);
+    }
+
+    async function toggleConsent(meetingId) {
+        const meeting = meetings.find(m => m.id === meetingId);
+        if (!meeting) return;
+
+        let consents = meeting.consents || [];
+        if (consents.includes(currentUser.email)) {
+            // веќе се согласил - не може да се откаже (може да се дозволи, но нека остане)
+            alert("Веќе сте се согласиле!");
+            return;
+        } else {
+            consents.push(currentUser.email);
+        }
+        meeting.consents = consents;
+        await saveMeetingToCloud(meeting);
+        await loadMeetings();
+    }
+
+    // ============================================
+    // АДМИНИСТРАЦИЈА: РЕСЕТ ЛОЗИНКА
+    // ============================================
+    async function resetUserPassword(userId) {
+        if (!currentUser?.isAdmin) {
+            alert("Само администратор може да ресетира лозинки!");
+            return;
+        }
+        const user = users.find(u => u.id === userId);
+        if (!user) return;
+        user.password = DEFAULT_PASSWORD;
+        await saveUserToCloud(user);
+        alert(`Лозинката за ${user.name} е ресетирана на 12345`);
+        await loadUsers();
+        render();
+    }
+
+    // ============================================
+    // АВТЕНТИКАЦИЈА
+    // ============================================
+    async function login(email, password) {
+        const user = users.find(u => u.email === email);
+        if (!user) {
+            return { success: false, error: "Нема корисник со оваа е-пошта" };
+        }
+        if (user.password !== password) {
+            return { success: false, error: "Погрешна лозинка" };
+        }
+        currentUser = user;
+        await loadMeetings();
+        renderApp();
+        return { success: true };
+    }
+
+    function logout() {
+        currentUser = null;
+        renderApp();
+    }
+
+    // ============================================
+    // КРЕИРАЊЕ НА СОСТАНОЦИ
+    // ============================================
+    async function submitNewMeeting() {
+        const title_mk = document.getElementById("title_mk")?.value;
+        if (!title_mk) { alert("Внесете наслов!"); return; }
+
+        const meetingData = {
+            id: -1,
+            title_mk: title_mk,
+            title_en: document.getElementById("title_en")?.value || "",
+            date: document.getElementById("date")?.value,
+            time: document.getElementById("time")?.value || "10:00",
+            location: document.getElementById("location")?.value || "",
+            attendees: document.getElementById("attendees")?.value || "",
+            agenda_mk: document.getElementById("agenda_mk")?.value || "",
+            agenda_en: document.getElementById("agenda_en")?.value || "",
+            minutes_mk: document.getElementById("minutes_mk")?.value || "",
+            minutes_en: document.getElementById("minutes_en")?.value || "",
+            decisions_mk: document.getElementById("decisions_mk")?.value || "",
+            decisions_en: document.getElementById("decisions_en")?.value || "",
+            status: "open",
+            consents: [],
+            created_by: currentUser.id,
+            created_by_name: currentUser.name
+        };
+        await saveMeetingToCloud(meetingData);
+        alert("✅ Состанокот е зачуван!");
+        currentTab = "meetings";
+        await loadMeetings();
+    }
+
+    async function deleteMeeting(id) {
+        if (confirm("Избриши го состанокот?")) {
+            await deleteMeetingFromCloud(id);
+            await loadMeetings();
+        }
+    }
+
+    // ============================================
+    // РЕНДЕРИРАЊЕ НА ЛОГИН
+    // ============================================
+    function renderLogin() {
+        return `
+            <div class="login-container">
+                <div class="login-header">
+                    <div class="login-logo">
+                        <div class="login-icon">НА</div>
+                        <div class="login-icon">МОН</div>
+                    </div>
+                    <div class="login-title">NA-NAU Meeting Management</div>
+                    <div class="login-sub">Најава со е-пошта и лозинка</div>
+                </div>
+                <div id="loginError" class="error-msg" style="display:none;"></div>
+                <div class="input-group">
+                    <label>Е-пошта</label>
+                    <input type="email" id="loginEmail" placeholder="email@na.org.mk">
+                </div>
+                <div class="input-group">
+                    <label>Лозинка</label>
+                    <input type="password" id="loginPassword" placeholder="********">
+                </div>
+                <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">Најави се</button>
+                <div style="margin-top:15px; font-size:11px; color:#64748b; text-align:center;">
+                    Дефолт лозинка: 12345
+                </div>
+            </div>
+        `;
+    }
+
+    window.doLogin = async function() {
+        const email = document.getElementById('loginEmail').value;
+        const pwd = document.getElementById('loginPassword').value;
+        const result = await login(email, pwd);
+        if (!result.success) {
+            const errDiv = document.getElementById('loginError');
+            errDiv.style.display = 'block';
+            errDiv.innerText = result.error;
+        }
+    }
+
+    // ============================================
+    // РЕНДЕРИРАЊЕ НА АПЛИКАЦИЈАТА (по најава)
+    // ============================================
+    function renderMeetings() {
+        if (!meetings.length) return `<div class="empty">Нема состаноци. Кликни "+ Нов состанок" за да додадеш.</div>`;
+        let html = `<div class="card"><div class="card-header"><span class="card-title">📋 Сите состаноци</span></div>`;
+        meetings.forEach(m => {
+            const isConsented = hasUserConsented(m);
+            const statusBadge = m.status === 'closed' ? 'closed' : 'open';
+            const statusText = m.status === 'closed' ? 'Затворен' : 'Активен';
+            html += `
+                <div class="meeting-row">
+                    <div><strong>${escapeHtml(m.title_mk)}</strong> <span class="badge ${statusBadge}">${statusText}</span></div>
+                    <div class="meta">📅 ${m.date} | 📍 ${escapeHtml(m.location)}</div>
+                    <div class="meta">👥 Присутни: ${escapeHtml(m.attendees || '')}</div>
+                    <div class="action-group">
+                        <button class="btn consent-btn ${isConsented ? 'active' : ''}" onclick="toggleConsent(${m.id})">${isConsented ? '✓ Се согласив' : '📝 Се согласувам'}</button>
+                        <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>📄 Извештај со потписи</button>
+                        ${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>🗑️ Избриши</button>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div>`;
+        return html;
+    }
+
+    function renderForm() {
+        return `<div class="card"><div class="card-header"><span class="card-title">➕ Нов состанок</span></div>
+            <div class="fi"><label>Наслов (македонски)*</label><input type="text" id="title_mk"></div>
+            <div class="fi"><label>Наслов (англиски)</label><input type="text" id="title_en"></div>
+            <div class="grid-2" style="display:grid; gap:16px; grid-template-columns:1fr 1fr;">
+                <div class="fi"><label>Датум</label><input type="date" id="date" value="${new Date().toISOString().slice(0,10)}"></div>
+                <div class="fi"><label>Време</label><input type="time" id="time" value="10:00"></div>
+            </div>
+            <div class="fi"><label>Локација</label><input type="text" id="location"></div>
+            <div class="fi"><label>Присутни (раздвоени со запирка)</label><input type="text" id="attendees" placeholder="Дарко Димитров, Ана Костовска, ..."></div>
+            <div class="fi"><label>Дневен ред (македонски)</label><textarea id="agenda_mk" rows="3"></textarea></div>
+            <div class="fi"><label>Дневен ред (англиски)</label><textarea id="agenda_en" rows="3"></textarea></div>
+            <div class="fi"><label>Записник (македонски)</label><textarea id="minutes_mk" rows="4"></textarea></div>
+            <div class="fi"><label>Записник (англиски)</label><textarea id="minutes_en" rows="4"></textarea></div>
+            <div class="fi"><label>Заклучоци (македонски)</label><textarea id="decisions_mk" rows="3"></textarea></div>
+            <div class="fi"><label>Заклучоци (англиски)</label><textarea id="decisions_en" rows="3"></textarea></div>
+            <div class="action-group"><button class="btn btn-primary" onclick="submitNewMeeting()">💾 Зачувај</button><button class="btn" onclick="cancelForm()">Откажи</button></div>
+        </div>`;
+    }
+
+    function cancelForm() { currentTab = "meetings"; render(); }
+
+    function exportMeetingMinutes(meeting) {
+        const consents = meeting.consents || [];
+        const attendees = meeting.attendees ? meeting.attendees.split(',').map(s => s.trim()) : [];
+        const signaturesHtml = `
+            <h3>Потписи / Согласувања</h3>
+            <table border="1" cellpadding="5" style="width:100%; border-collapse:collapse;">
+                <thead><tr bgcolor="#f0f0f0"><th>Име / Е-пошта</th><th>Потпис / Статус</th><th>Датум</th></tr></thead>
+                <tbody>
+                    ${attendees.map(email => {
+                        const user = users.find(u => u.email === email);
+                        const name = user ? user.name : email;
+                        const hasConsented = consents.includes(email);
+                        return `<tr><td>${escapeHtml(name)} (${escapeHtml(email)})</td><td>${hasConsented ? '✓ СЕ СОГЛАСУВАМ' : '___________'}</td><td>${hasConsented ? new Date().toLocaleDateString() : ''}</td></tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(meeting.title_mk)} - Записник</title></head><body>
+        <h1>ЗАПИСНИК ОД СОСТАНОК</h1>
+        <h2>${escapeHtml(meeting.title_mk)}</h2>
+        <p><strong>Датум:</strong> ${meeting.date}<br><strong>Локација:</strong> ${escapeHtml(meeting.location)}</p>
+        <h3>Дневен ред</h3><p>${escapeHtml(meeting.agenda_mk || '').replace(/\n/g,'<br>')}</p>
+        <h3>Записник</h3><p>${escapeHtml(meeting.minutes_mk || '').replace(/\n/g,'<br>')}</p>
+        <h3>Заклучоци</h3><p>${escapeHtml(meeting.decisions_mk || '').replace(/\n/g,'<br>')}</p>
+        ${signaturesHtml}
+        <footer><p>Генерирано од NA-NAU · ${new Date().toLocaleString()}</p></footer>
+        </body></html>`;
+        const blob = new Blob([html], { type: "application/msword" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `Zapisnik_${meeting.title_mk.replace(/[^a-z0-9]/gi,'_')}_${meeting.date}.doc`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
+    function renderEmployees() {
+        if (!currentUser.isAdmin) return `<div class="card"><div class="empty">Немате право да ги гледате вработените.</div></div>`;
+        return `<div class="card"><div class="card-header"><span class="card-title">👥 Вработени</span></div>
+            <div class="employee-grid">
+                ${users.map(u => `<div style="background:#f8fafc; border-radius:12px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                    <div><strong>${escapeHtml(u.name)}</strong><br><small>${escapeHtml(u.position)}</small><br><small>📧 ${escapeHtml(u.email)}</small></div>
+                    <button class="reset-pwd" onclick="resetUserPassword(${u.id})">Ресетирај лозинка</button>
+                </div>`).join('')}
+            </div>
+        </div>`;
+    }
+
+    function renderSettings() {
+        if (!currentUser.isAdmin) return `<div class="card"><div class="empty">Немате администраторски права.</div></div>`;
+        return `<div class="card"><div class="card-header"><span class="card-title">⚙️ Администрација</span></div>
+            <div class="employee-grid">
+                ${users.map(u => `<div style="background:#f8fafc; border-radius:12px; padding:12px;">
+                    <div><strong>${escapeHtml(u.name)}</strong> (${escapeHtml(u.position)})<br>📧 ${escapeHtml(u.email)}</div>
+                    <button class="btn btn-sm" onclick="resetUserPassword(${u.id})" style="margin-top:8px;">🔄 Ресетирај лозинка (12345)</button>
+                </div>`).join('')}
+            </div>
+        </div>`;
+    }
+
+    function renderCalendar() {
+        const monthNames = ["јануари","февруари","март","април","мај","јуни","јули","август","септември","октомври","ноември","декември"];
+        const daysInMonth = new Date(calendarYear, calendarMonth+1, 0).getDate();
+        const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+        const start = firstDay === 0 ? 6 : firstDay - 1;
+        let days = [];
+        for (let i=0; i<start; i++) days.push(null);
+        for (let d=1; d<=daysInMonth; d++) days.push(d);
+        while (days.length < 42) days.push(null);
+        let html = `<div class="card"><div class="month-nav" style="display:flex; justify-content:space-between;"><button class="btn btn-sm" id="prevMonthBtn">◀</button><strong>${monthNames[calendarMonth]} ${calendarYear}</strong><button class="btn btn-sm" id="nextMonthBtn">▶</button></div><div style="display:grid; grid-template-columns:repeat(7,1fr); gap:6px;">`;
+        ["Пон","Вто","Сре","Чет","Пет","Саб","Нед"].forEach(d => html += `<div style="text-align:center; font-weight:600;">${d}</div>`);
+        days.forEach(d => {
+            if (d === null) { html += `<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; min-height:80px; padding:5px; opacity:0.3;"></div>`; return; }
+            const dateStr = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const dayMeetings = meetings.filter(m => m.date === dateStr);
+            let ev = "";
+            dayMeetings.forEach(m => { ev += `<div style="font-size:0.65rem; background:white; border-radius:6px; padding:2px 5px; margin-top:3px; border-left:3px solid #2563eb;">📌 ${escapeHtml(m.title_mk.substring(0,18))}</div>`; });
+            html += `<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; min-height:80px; padding:5px;"><div style="font-weight:700;">${d}</div>${ev}</div>`;
+        });
+        html += `</div></div>`;
+        return html;
+    }
+
+    function renderStats() {
+        const total = meetings.length;
+        const totalConsents = meetings.reduce((sum, m) => sum + (m.consents?.length || 0), 0);
+        return `<div class="card"><div class="card-header"><span class="card-title">📊 Статистика</span></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; text-align:center;">
+                <div><div style="font-size:2rem; font-weight:800;">${total}</div><div>Вкупно состаноци</div></div>
+                <div><div style="font-size:2rem; font-weight:800; color:#166534;">${totalConsents}</div><div>Дадени согласувања</div></div>
+            </div>
+        </div>`;
+    }
+
+    function renderMainApp() {
+        const tabs = [
+            { id: "meetings", label: "📋 Состаноци" },
+            { id: "new", label: "➕ Нов состанок" },
+            { id: "calendar", label: "📅 Календар" },
+            { id: "stats", label: "📊 Статистика" },
+            { id: "employees", label: "👥 Вработени" },
+            { id: "settings", label: "⚙️ Поставки" }
+        ];
+        let tabsHtml = `<div class="tabs">`;
+        tabs.forEach(tab => {
+            tabsHtml += `<button class="tab ${currentTab === tab.id ? 'active' : ''}" data-tab="${tab.id}">${tab.label}</button>`;
+        });
+        tabsHtml += `</div>`;
+
+        let content = "";
+        if (currentTab === "meetings") content = renderMeetings();
+        else if (currentTab === "new") content = renderForm();
+        else if (currentTab === "calendar") content = renderCalendar();
+        else if (currentTab === "stats") content = renderStats();
+        else if (currentTab === "employees") content = renderEmployees();
+        else if (currentTab === "settings") content = renderSettings();
+
+        return `
+            ${tabsHtml}
+            ${content}
+        `;
+    }
+
+    function renderApp() {
+        const root = document.getElementById('appRoot');
+        if (!currentUser) {
+            root.innerHTML = renderLogin();
+        } else {
+            root.innerHTML = `
+                <div class="app">
+                    <div class="hdr">
+                        <div class="logo-section">
+                            <div class="logo-icon">НА</div>
+                            <div class="logo-text"><strong>НАЕОПМ</strong><br>Скопје</div>
+                            <div class="logo-icon">МОН</div>
+                            <div class="logo-text"><strong>Министерство за<br>образование и наука</strong></div>
+                            <div><div class="hdr-title">NA-NAU <span class="hdr-accent">Meeting<br>Management</span></div>
+                            <div class="hdr-sub">Систем за согласување на состаноци</div></div>
+                        </div>
+                        <div class="user-panel">
+                            <div class="user-info">${escapeHtml(currentUser.name)} (${escapeHtml(currentUser.position)})</div>
+                            <button class="btn-logout" onclick="logout()">Одјави се</button>
+                        </div>
+                    </div>
+                    ${renderMainApp()}
+                    <div class="footer-credit">Created by: D. Dimitrov · NA-NAU Meeting System</div>
+                </div>
+            `;
+            attachTabEvents();
+            attachCalendarEvents();
+        }
+    }
+
+    function attachTabEvents() {
+        document.querySelectorAll('[data-tab]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentTab = btn.getAttribute('data-tab');
+                editId = null;
+                renderApp();
+            });
+        });
+    }
+
+    function attachCalendarEvents() {
+        const prevBtn = document.getElementById("prevMonthBtn");
+        const nextBtn = document.getElementById("nextMonthBtn");
+        if (prevBtn) prevBtn.onclick = () => { calendarMonth--; if(calendarMonth<0){calendarMonth=11;calendarYear--;} renderApp(); };
+        if (nextBtn) nextBtn.onclick = () => { calendarMonth++; if(calendarMonth>11){calendarMonth=0;calendarYear++;} renderApp(); };
+    }
+
+    window.toggleConsent = toggleConsent;
+    window.deleteMeeting = deleteMeeting;
+    window.submitNewMeeting = submitNewMeeting;
+    window.exportMeetingMinutes = exportMeetingMinutes;
+    window.resetUserPassword = resetUserPassword;
+    window.cancelForm = cancelForm;
+
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+
+    async function init() {
+        await loadUsers();
+        renderApp();
+    }
+    init();
+</script>
+</body>
+</html>
