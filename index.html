@@ -9,7 +9,6 @@
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f8; color: #0f172a; font-size: 14px; }
         .app { max-width: 1300px; margin: 0 auto; padding: 1rem; }
         
-        /* Header */
         .hdr { background: white; border-radius: 1rem; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; }
         .logo-section { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
         .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #1e40af, #3b82f6); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; color: white; }
@@ -26,50 +25,40 @@
         .lang-btn { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
         .lang-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
         
-        /* Tabs */
         .tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; border-bottom: 2px solid #cbd5e1; padding-bottom: 4px; }
         .tab { padding: 8px 20px; border-radius: 30px; background: transparent; border: none; color: #64748b; font-weight: 600; cursor: pointer; }
         .tab:hover { background: #eef2f6; }
         .tab.active { background: #2563eb; color: white; }
         
-        /* Cards */
         .card { background: white; border-radius: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 1rem; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid #eef2f6; }
         .card-title { font-size: 1rem; font-weight: 700; }
         
-        /* Buttons */
         .btn { padding: 6px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: all 0.2s; }
-        .btn:hover { background: #f1f5f9; transform: translateY(-1px); }
         .btn-primary { background: #2563eb; border-color: #2563eb; color: white; }
-        .btn-primary:hover { background: #1d4ed8; }
         .btn-danger { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
         .btn-sm { padding: 4px 10px; font-size: 0.7rem; }
-        .btn-success { background: #dcfce7; border-color: #bbf7d0; color: #166534; }
         .consent-btn { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; cursor: pointer; }
         .consent-btn.active { background: #166534; color: white; border-color: #166534; cursor: default; }
         
-        /* Forms */
         .fi { margin-bottom: 1rem; }
         .fi label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 5px; color: #334155; }
         input, select, textarea { width: 100%; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; }
         textarea { resize: vertical; min-height: 80px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         
-        /* Meeting items */
         .meeting-item { background: #f8fafc; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; transition: all 0.2s; }
         .meeting-title { font-weight: 700; font-size: 1rem; }
         .meta { font-size: 0.75rem; color: #64748b; margin: 6px 0; display: flex; flex-wrap: wrap; gap: 12px; }
         .action-group { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; justify-content: flex-end; }
-        .approved-by { font-size: 0.7rem; color: #166534; margin-top: 5px; padding-top: 5px; border-top: 1px dashed #bbf7d0; }
         
-        /* Consent list */
         .consent-list { margin-top: 8px; background: #f8fafc; border-radius: 8px; padding: 8px; font-size: 0.7rem; }
         .consent-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e2e8f0; }
         .consent-item:last-child { border-bottom: none; }
         .consent-yes { color: #166534; font-weight: 600; }
         .consent-no { color: #991b1b; }
+        .approved-by { font-size: 0.7rem; color: #166534; margin-top: 5px; padding-top: 5px; border-top: 1px dashed #bbf7d0; }
         
-        /* Calendar */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 1rem; }
         .cal-day { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; min-height: 90px; padding: 8px; }
         .cal-day.today { border-color: #2563eb; background: #dbeafe; }
@@ -77,7 +66,6 @@
         .cal-event { font-size: 0.65rem; background: white; border-radius: 6px; padding: 2px 5px; margin-top: 3px; cursor: pointer; border-left: 3px solid #2563eb; }
         .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
         
-        /* Login */
         .login-container { max-width: 450px; margin: 3rem auto; background: white; border-radius: 1.5rem; padding: 2rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
         .login-header { text-align: center; margin-bottom: 2rem; }
         .login-logo { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
@@ -86,7 +74,6 @@
         
         .empty { text-align: center; padding: 2rem; color: #64748b; }
         .footer-credit { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.7rem; color: #64748b; border-top: 1px solid #e2e8f0; }
-        
         @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -94,9 +81,6 @@
 <div id="appRoot"></div>
 
 <script>
-    // ============================================
-    // КОНФИГУРАЦИЈА
-    // ============================================
     const API_URL = "https://script.google.com/macros/s/AKfycbwxTZa-6U7DHGZvvN9rbLDNegXAPuCxyCfIBum7FIKTNUIOsmwrKP8kzw-gYcITsqqu/exec";
     let meetings = [];
     let users = [];
@@ -106,38 +90,28 @@
     let calendarMonth = new Date().getMonth();
     let lang = "mk";
     
-    // ============================================
-    // ПРЕВОДИ
-    // ============================================
     const translations = {
         mk: {
-            appTitle: "NA-NAU Meeting Management", appSub: "Систем за согласување на состаноци",
             meetings: "📋 Состаноци", newMeeting: "➕ Нов состанок", calendar: "📅 Календар", stats: "📊 Статистика", archive: "📦 Архива",
             loginTitle: "Најава со е-пошта и лозинка", email: "Е-пошта", password: "Лозинка", login: "Најави се", logout: "Одјави се",
             noMeetings: "Нема активни состаноци.", addMeeting: "Нов состанок", title: "Наслов", date: "Датум", time: "Време", location: "Локација",
-            attendees: "Присутни (е-пошти, раздвоени со запирка)", agenda: "Дневен ред", minutes: "Записник", decisions: "Заклучоци",
-            save: "Зачувај", cancel: "Откажи", agree: "📝 Се согласувам", agreed: "✓ Се согласив", exportReport: "📄 Извештај со потписи",
-            delete: "🗑️ Избриши", total: "Вкупно состаноци", totalConsents: "Дадени согласувања", archiveEmpty: "Нема архивирани состаноци.",
-            errorUserNotFound: "Нема корисник со оваа е-пошта", errorWrongPassword: "Погрешна лозинка", enterTitle: "Внесете наслов!",
-            approvedBy: "Одобрен од:", allApproved: "Сите се согласија"
+            attendees: "Присутни (е-пошти)", agenda: "Дневен ред", minutes: "Записник", decisions: "Заклучоци", save: "Зачувај", cancel: "Откажи",
+            agree: "📝 Се согласувам", agreed: "✓ Се согласив", exportReport: "📄 Извештај", delete: "🗑️ Избриши", total: "Вкупно состаноци",
+            totalConsents: "Дадени согласувања", archiveEmpty: "Нема архивирани состаноци.", approvedBy: "Завршен од:", allApproved: "Сите се согласија",
+            errorUserNotFound: "Нема корисник со оваа е-пошта", errorWrongPassword: "Погрешна лозинка", enterTitle: "Внесете наслов!"
         },
         en: {
-            appTitle: "NA-NAU Meeting Management", appSub: "Meeting Consent System",
             meetings: "📋 Meetings", newMeeting: "➕ New Meeting", calendar: "📅 Calendar", stats: "📊 Statistics", archive: "📦 Archive",
-            loginTitle: "Login with email and password", email: "Email", password: "Password", login: "Login", logout: "Logout",
+            loginTitle: "Login", email: "Email", password: "Password", login: "Login", logout: "Logout",
             noMeetings: "No active meetings.", addMeeting: "New Meeting", title: "Title", date: "Date", time: "Time", location: "Location",
-            attendees: "Attendees (emails, comma separated)", agenda: "Agenda", minutes: "Minutes", decisions: "Decisions",
-            save: "Save", cancel: "Cancel", agree: "📝 I agree", agreed: "✓ I agreed", exportReport: "📄 Report with signatures",
-            delete: "🗑️ Delete", total: "Total meetings", totalConsents: "Total consents", archiveEmpty: "No archived meetings.",
-            errorUserNotFound: "User not found", errorWrongPassword: "Wrong password", enterTitle: "Please enter a title!",
-            approvedBy: "Approved by:", allApproved: "All agreed"
+            attendees: "Attendees (emails)", agenda: "Agenda", minutes: "Minutes", decisions: "Decisions", save: "Save", cancel: "Cancel",
+            agree: "📝 I agree", agreed: "✓ I agreed", exportReport: "📄 Report", delete: "🗑️ Delete", total: "Total meetings",
+            totalConsents: "Total consents", archiveEmpty: "No archived meetings.", approvedBy: "Completed by:", allApproved: "All agreed",
+            errorUserNotFound: "User not found", errorWrongPassword: "Wrong password", enterTitle: "Enter a title!"
         }
     };
     function t(key) { return translations[lang][key] || key; }
     
-    // ============================================
-    // API ПОВИЦИ
-    // ============================================
     async function apiGet(action) {
         try {
             const response = await fetch(`${API_URL}?action=${action}&_=${Date.now()}`);
@@ -146,11 +120,7 @@
     }
     async function apiPost(action, data) {
         try {
-            await fetch(`${API_URL}?action=${action}`, {
-                method: "POST", mode: "no-cors",
-                body: JSON.stringify(data),
-                headers: { "Content-Type": "application/json" }
-            });
+            await fetch(`${API_URL}?action=${action}`, { method: "POST", mode: "no-cors", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } });
             return { success: true };
         } catch(e) { return { success: false, error: e.message }; }
     }
@@ -159,10 +129,9 @@
         const data = await apiGet('getMeetings');
         if (data.success && data.meetings) {
             meetings = data.meetings.map(m => ({
-                ...m,
-                date: m.date ? m.date.split('T')[0] : m.date,
+                ...m, date: m.date ? m.date.split('T')[0] : m.date,
                 consents: Array.isArray(m.consents) ? m.consents : [],
-                isArchived: m.isArchived || false
+                isArchived: m.isArchived === true
             }));
         } else { meetings = []; }
         if (currentUser) renderApp();
@@ -170,14 +139,13 @@
     
     async function loadUsers() {
         const data = await apiGet('getUsers');
-        if (data.success && data.users && data.users.length > 0) {
-            users = data.users;
-        } else {
+        if (data.success && data.users && data.users.length > 0) { users = data.users; }
+        else {
             users = [
-                { id: 1, name: "Дарко Димитров", position: "Раководител на сектор", email: "darko.dimitrov@na.org.mk", password: "12345", isAdmin: true, institution: "НАЕОПМ" },
-                { id: 2, name: "Марија Стојановска", position: "Помошник раководител", email: "marija@na.org.mk", password: "12345", isAdmin: false, institution: "НАЕОПМ" },
-                { id: 3, name: "Александар Николовски", position: "Советник", email: "aleksandar@na.org.mk", password: "12345", isAdmin: false, institution: "НАЕОПМ" },
-                { id: 4, name: "Ана Костовска", position: "Службеник", email: "ana@na.org.mk", password: "12345", isAdmin: false, institution: "НАЕОПМ" }
+                { id: 1, name: "Дарко Димитров", position: "Раководител на сектор", email: "darko.dimitrov@na.org.mk", password: "12345", isAdmin: true },
+                { id: 2, name: "Марија Стојановска", position: "Помошник раководител", email: "marija@na.org.mk", password: "12345", isAdmin: false },
+                { id: 3, name: "Александар Николовски", position: "Советник", email: "aleksandar@na.org.mk", password: "12345", isAdmin: false },
+                { id: 4, name: "Ана Костовска", position: "Службеник", email: "ana@na.org.mk", password: "12345", isAdmin: false }
             ];
         }
     }
@@ -185,13 +153,10 @@
     async function saveMeetingToCloud(meeting) { return await apiPost('saveMeeting', meeting); }
     async function deleteMeetingFromCloud(id) { return await apiPost('deleteMeeting', { id: id }); }
     
-    // ============================================
-    // ФУНКЦИИ ЗА СОГЛАСУВАЊЕ
-    // ============================================
     function hasUserConsented(meeting) {
         if (!currentUser) return false;
         const consents = meeting.consents || [];
-        return Array.isArray(consents) && consents.includes(currentUser.email);
+        return consents.includes(currentUser.email);
     }
     
     function isFullyConsented(meeting) {
@@ -201,21 +166,20 @@
         return attendees.every(email => consents.includes(email));
     }
     
+    // **КЛУЧНА ФУНКЦИЈА: ПРЕМЕСТУВАЊЕ НА СОСТАНОК (БРИШЕЊЕ ОД АКТИВНИ, ДОДАВАЊЕ ВО АРХИВА)**
     async function toggleConsent(meetingId) {
         const meeting = meetings.find(m => m.id === meetingId);
         if (!meeting || meeting.isArchived) return;
-        let consents = meeting.consents || [];
-        if (!Array.isArray(consents)) consents = [];
-        if (consents.includes(currentUser.email)) {
-            alert("Веќе сте се согласиле!");
-            return;
-        }
+        let consents = [...(meeting.consents || [])];
+        if (consents.includes(currentUser.email)) { alert("Веќе сте се согласиле!"); return; }
+        
         consents.push(currentUser.email);
         meeting.consents = consents;
         
-        // Провери дали сите се согласиле - ТОГАШ АРХИВИРАЈ
         const allConsented = isFullyConsented(meeting);
         if (allConsented) {
+            // **ПРЕМЕСТУВАЊЕ:** ја менуваме само ознаката isArchived на true. 
+            // Така состанокот повеќе НЕ се прикажува во активни, туку САМО во архива.
             meeting.isArchived = true;
             meeting.archivedBy = currentUser.email;
             meeting.archivedByName = currentUser.name;
@@ -223,16 +187,12 @@
         }
         
         await saveMeetingToCloud(meeting);
-        await loadMeetings();
+        await loadMeetings(); // повторно вчитување на листата од сервер
         renderApp();
     }
     
-    // ============================================
-    // АВТЕНТИКАЦИЈА
-    // ============================================
     async function login(email, password) {
         email = email.trim().toLowerCase();
-        password = password.trim();
         await loadUsers();
         const user = users.find(u => u.email.toLowerCase() === email);
         if (!user) return { success: false, error: t('errorUserNotFound') };
@@ -243,37 +203,20 @@
         return { success: true };
     }
     
-    function logout() { 
-        currentUser = null; 
-        renderApp(); 
-    }
+    function logout() { currentUser = null; renderApp(); }
     
-    // ============================================
-    // КРЕИРАЊЕ НА СОСТАНОЦИ (САМО АДМИН)
-    // ============================================
     async function submitNewMeeting() {
         if (!currentUser?.isAdmin) { alert("Само администратор може да креира состаноци!"); return; }
         const title_mk = document.getElementById("title_mk")?.value;
         if (!title_mk) { alert(t('enterTitle')); return; }
         const meetingData = {
-            id: -1,
-            title_mk: title_mk,
-            title_en: document.getElementById("title_en")?.value || "",
-            date: document.getElementById("date")?.value,
-            time: document.getElementById("time")?.value || "10:00",
-            location: document.getElementById("location")?.value || "",
-            attendees: document.getElementById("attendees")?.value || "",
-            agenda_mk: document.getElementById("agenda_mk")?.value || "",
-            agenda_en: document.getElementById("agenda_en")?.value || "",
-            minutes_mk: document.getElementById("minutes_mk")?.value || "",
-            minutes_en: document.getElementById("minutes_en")?.value || "",
-            decisions_mk: document.getElementById("decisions_mk")?.value || "",
-            decisions_en: document.getElementById("decisions_en")?.value || "",
-            status: "open",
-            consents: [],
-            isArchived: false,
-            created_by: currentUser.id,
-            created_by_name: currentUser.name
+            id: -1, title_mk, title_en: document.getElementById("title_en")?.value || "",
+            date: document.getElementById("date")?.value, time: document.getElementById("time")?.value || "10:00",
+            location: document.getElementById("location")?.value || "", attendees: document.getElementById("attendees")?.value || "",
+            agenda_mk: document.getElementById("agenda_mk")?.value || "", agenda_en: document.getElementById("agenda_en")?.value || "",
+            minutes_mk: document.getElementById("minutes_mk")?.value || "", minutes_en: document.getElementById("minutes_en")?.value || "",
+            decisions_mk: document.getElementById("decisions_mk")?.value || "", decisions_en: document.getElementById("decisions_en")?.value || "",
+            status: "open", consents: [], isArchived: false, created_by: currentUser.id, created_by_name: currentUser.name
         };
         await saveMeetingToCloud(meetingData);
         alert("✅ Состанокот е зачуван!");
@@ -283,65 +226,57 @@
     
     async function deleteMeeting(id) {
         if (!currentUser.isAdmin) { alert("Само администратор може да брише состаноци!"); return; }
-        if (confirm("Избриши го состанокот?")) {
-            await deleteMeetingFromCloud(id);
-            await loadMeetings();
-        }
+        if (confirm("Избриши го состанокот?")) { await deleteMeetingFromCloud(id); await loadMeetings(); }
     }
     
     function cancelForm() { currentTab = "meetings"; renderApp(); }
     
-    // ============================================
-    // ИЗВЕШТАЈ ВО WORD
-    // ============================================
     function exportMeetingMinutes(meeting) {
         const consents = meeting.consents || [];
         const attendees = meeting.attendees ? meeting.attendees.split(',').map(s => s.trim()) : [];
-        let signaturesHtml = '<h3>' + (lang === 'mk' ? 'Потписи / Согласувања' : 'Signatures / Consents') + '</h3><table border="1" cellpadding="5" style="width:100%; border-collapse:collapse;"><thead><tr bgcolor="#f0f0f0"><th>' + (lang === 'mk' ? 'Име / Е-пошта' : 'Name / Email') + '</th><th>' + (lang === 'mk' ? 'Статус' : 'Status') + '</th><th>' + (lang === 'mk' ? 'Датум' : 'Date') + '</th><tr></thead><tbody>';
+        let signaturesHtml = '<h3>' + (lang === 'mk' ? 'Согласувања' : 'Consents') + '</h3><table border="1"><thead><tr bgcolor="#f0f0f0"><th>' + (lang === 'mk' ? 'Име' : 'Name') + '</th><th>' + (lang === 'mk' ? 'Статус' : 'Status') + '</th><th>' + (lang === 'mk' ? 'Датум' : 'Date') + '</th></tr></thead><tbody>';
         attendees.forEach(email => {
             const user = users.find(u => u.email === email);
             const name = user ? user.name : email;
             const hasConsented = consents.includes(email);
-            signaturesHtml += `<tr><td>${escapeHtml(name)} (${escapeHtml(email)})</td><td>${hasConsented ? '✓ ' + (lang === 'mk' ? 'СЕ СОГЛАСУВА' : 'AGREES') : '✗ ' + (lang === 'mk' ? 'НЕ СЕ СОГЛАСУВА' : 'DOES NOT AGREE')}</td><td>${hasConsented ? new Date().toLocaleDateString() : ''}</td></tr>`;
+            signaturesHtml += `<tr><td>${escapeHtml(name)} (${escapeHtml(email)})</td><td>${hasConsented ? '✓ ' + (lang === 'mk' ? 'СЕ СОГЛАСУВА' : 'AGREES') : '✗ ' + (lang === 'mk' ? 'НЕ' : 'NOT')}</td><td>${hasConsented ? new Date().toLocaleDateString() : ''}</td></tr>`;
         });
         signaturesHtml += '</tbody></table>';
-        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(meeting.title_mk)} - ${lang === 'mk' ? 'Записник' : 'Minutes'}</title><style>body{font-family:Calibri; margin:2rem;} table{border-collapse:collapse; width:100%;} td,th{border:1px solid #999; padding:8px;}</style></head><body><h1>${lang === 'mk' ? 'ЗАПИСНИК ОД СОСТАНОК' : 'MEETING MINUTES'}</h1><h2>${escapeHtml(lang === 'mk' ? meeting.title_mk : (meeting.title_en || meeting.title_mk))}</h2><p><strong>${t('date')}:</strong> ${meeting.date}<br><strong>${t('location')}:</strong> ${escapeHtml(meeting.location)}</p><h3>${t('agenda')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.agenda_mk : (meeting.agenda_en || meeting.agenda_mk)).replace(/\n/g,'<br>')}</p><h3>${t('minutes')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.minutes_mk : (meeting.minutes_en || meeting.minutes_mk)).replace(/\n/g,'<br>')}</p><h3>${t('decisions')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.decisions_mk : (meeting.decisions_en || meeting.decisions_mk)).replace(/\n/g,'<br>')}</p>${signaturesHtml}<footer><p>NA-NAU · ${new Date().toLocaleString()}</p></footer></body></html>`;
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(meeting.title_mk)}</title></head><body><h1>ЗАПИСНИК</h1><h2>${escapeHtml(meeting.title_mk)}</h2><p><strong>${t('date')}:</strong> ${meeting.date}<br><strong>${t('location')}:</strong> ${escapeHtml(meeting.location)}</p><h3>${t('agenda')}</h3><p>${escapeHtml(meeting.agenda_mk || '').replace(/\n/g,'<br>')}</p><h3>${t('minutes')}</h3><p>${escapeHtml(meeting.minutes_mk || '').replace(/\n/g,'<br>')}</p><h3>${t('decisions')}</h3><p>${escapeHtml(meeting.decisions_mk || '').replace(/\n/g,'<br>')}</p>${signaturesHtml}<footer><p>NA-NAU</p></footer></body></html>`;
         const blob = new Blob([html], { type: "application/msword" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `Meeting_${(meeting.title_mk || '').replace(/[^a-z0-9]/gi,'_')}_${meeting.date || ''}.doc`;
+        a.download = `Meeting_${(meeting.title_mk || '').replace(/[^a-z0-9]/gi,'_')}.doc`;
         a.click();
         URL.revokeObjectURL(a.href);
     }
     
-    // ============================================
-    // РЕНДЕРИРАЊЕ
-    // ============================================
+    // **ПРИКАЖУВАЊЕ НА АКТИВНИ СОСТАНОЦИ (САМО isArchived === false)**
     function renderMeetings() {
         const activeMeetings = meetings.filter(m => !m.isArchived);
         if (!activeMeetings.length) return `<div class="card"><div class="empty">${t('noMeetings')}</div></div>`;
         let html = `<div class="card"><div class="card-header"><span class="card-title">📋 ${t('meetings')}</span></div>`;
         activeMeetings.forEach(m => {
             const isConsented = hasUserConsented(m);
-            const attendeesList = m.attendees ? m.attendees.split(',').map(s => s.trim()) : [];
+            const attendeesList = (m.attendees || '').split(',').map(s => s.trim());
             const consents = m.consents || [];
-            let consentHtml = `<div class="consent-list"><strong>📋 ${t('consentList') || 'Согласувања'}:</strong>`;
+            let consentHtml = `<div class="consent-list"><strong>📋 Согласувања:</strong>`;
             attendeesList.forEach(email => {
                 const user = users.find(u => u.email === email);
                 const name = user ? user.name : email;
-                const hasConsented = consents.includes(email);
-                consentHtml += `<div class="consent-item"><span>${escapeHtml(name)}</span><span class="${hasConsented ? 'consent-yes' : 'consent-no'}">${hasConsented ? '✓ ' + (lang === 'mk' ? 'се согласи' : 'agreed') : '✗ ' + (lang === 'mk' ? 'чека' : 'waiting')}</span></div>`;
+                const has = consents.includes(email);
+                consentHtml += `<div class="consent-item"><span>${escapeHtml(name)}</span><span class="${has ? 'consent-yes' : 'consent-no'}">${has ? '✓ се согласи' : '✗ чека'}</span></div>`;
             });
             consentHtml += `</div>`;
             html += `
                 <div class="meeting-item">
                     <div><strong class="meeting-title">${escapeHtml(m.title_mk)}</strong></div>
-                    <div class="meta">📅 ${m.date || ''} | 📍 ${escapeHtml(m.location || '')} | 👥 ${escapeHtml(m.attendees || '')}</div>
+                    <div class="meta">📅 ${m.date} | 📍 ${escapeHtml(m.location)} | 👥 ${escapeHtml(m.attendees)}</div>
                     ${consentHtml}
                     <div class="action-group">
                         <button class="btn consent-btn ${isConsented ? 'active' : ''}" ${isConsented ? 'disabled' : ''} onclick="toggleConsent(${m.id})">${isConsented ? t('agreed') : t('agree')}</button>
-                        <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>${t('exportReport')}</button>
-                        ${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>${t('delete')}</button>` : ''}
+                        <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>📄 ${t('exportReport')}</button>
+                        ${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>🗑️ ${t('delete')}</button>` : ''}
                     </div>
                 </div>`;
         });
@@ -349,30 +284,31 @@
         return html;
     }
     
+    // **ПРИКАЖУВАЊЕ НА АРХИВИРАНИ СОСТАНОЦИ (САМО isArchived === true)**
     function renderArchive() {
-        const archivedMeetings = meetings.filter(m => m.isArchived);
-        if (!archivedMeetings.length) return `<div class="card"><div class="empty">${t('archiveEmpty')}</div></div>`;
+        const archived = meetings.filter(m => m.isArchived);
+        if (!archived.length) return `<div class="card"><div class="empty">${t('archiveEmpty')}</div></div>`;
         let html = `<div class="card"><div class="card-header"><span class="card-title">📦 ${t('archive')}</span></div>`;
-        archivedMeetings.forEach(m => {
-            const attendeesList = m.attendees ? m.attendees.split(',').map(s => s.trim()) : [];
+        archived.forEach(m => {
+            const attendeesList = (m.attendees || '').split(',').map(s => s.trim());
             const consents = m.consents || [];
-            let consentHtml = `<div class="consent-list"><strong>📋 ${t('consentList') || 'Согласувања'}:</strong>`;
+            let consentHtml = `<div class="consent-list"><strong>📋 Согласувања:</strong>`;
             attendeesList.forEach(email => {
                 const user = users.find(u => u.email === email);
                 const name = user ? user.name : email;
-                const hasConsented = consents.includes(email);
-                consentHtml += `<div class="consent-item"><span>${escapeHtml(name)}</span><span class="${hasConsented ? 'consent-yes' : 'consent-no'}">${hasConsented ? '✓ ' + (lang === 'mk' ? 'се согласи' : 'agreed') : '✗ ' + (lang === 'mk' ? 'не се согласи' : 'not agreed')}</span></div>`;
+                const has = consents.includes(email);
+                consentHtml += `<div class="consent-item"><span>${escapeHtml(name)}</span><span class="${has ? 'consent-yes' : 'consent-no'}">${has ? '✓ се согласи' : '✗ не се согласи'}</span></div>`;
             });
             consentHtml += `</div>`;
             html += `
                 <div class="meeting-item">
                     <div><strong class="meeting-title">${escapeHtml(m.title_mk)}</strong></div>
-                    <div class="meta">📅 ${m.date || ''} | 📍 ${escapeHtml(m.location || '')}</div>
-                    <div class="approved-by">✅ ${t('approvedBy')} ${escapeHtml(m.archivedByName || '')} (${m.archivedDate ? new Date(m.archivedDate).toLocaleDateString() : ''})</div>
+                    <div class="meta">📅 ${m.date} | 📍 ${escapeHtml(m.location)}</div>
+                    <div class="approved-by">✅ ${t('approvedBy')} ${escapeHtml(m.archivedByName || m.created_by_name)} (${m.archivedDate ? new Date(m.archivedDate).toLocaleDateString() : ''})</div>
                     ${consentHtml}
                     <div class="action-group">
-                        <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>${t('exportReport')}</button>
-                        ${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>${t('delete')}</button>` : ''}
+                        <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>📄 ${t('exportReport')}</button>
+                        ${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>🗑️ ${t('delete')}</button>` : ''}
                     </div>
                 </div>`;
         });
@@ -387,19 +323,19 @@
             <div class="fi"><label>${t('title')} (англиски)</label><input type="text" id="title_en"></div>
             <div class="grid-2"><div class="fi"><label>${t('date')}</label><input type="date" id="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="fi"><label>${t('time')}</label><input type="time" id="time" value="10:00"></div></div>
             <div class="fi"><label>${t('location')}</label><input type="text" id="location"></div>
-            <div class="fi"><label>${t('attendees')}</label><input type="text" id="attendees" placeholder="darko.dimitrov@na.org.mk, marija@na.org.mk, ..."></div>
+            <div class="fi"><label>${t('attendees')}</label><input type="text" id="attendees" placeholder="darko.dimitrov@na.org.mk, marija@na.org.mk"></div>
             <div class="fi"><label>${t('agenda')} (македонски)</label><textarea id="agenda_mk" rows="3"></textarea></div>
             <div class="fi"><label>${t('agenda')} (англиски)</label><textarea id="agenda_en" rows="3"></textarea></div>
             <div class="fi"><label>${t('minutes')} (македонски)</label><textarea id="minutes_mk" rows="4"></textarea></div>
             <div class="fi"><label>${t('minutes')} (англиски)</label><textarea id="minutes_en" rows="4"></textarea></div>
             <div class="fi"><label>${t('decisions')} (македонски)</label><textarea id="decisions_mk" rows="3"></textarea></div>
             <div class="fi"><label>${t('decisions')} (англиски)</label><textarea id="decisions_en" rows="3"></textarea></div>
-            <div class="action-group"><button class="btn btn-primary" onclick="submitNewMeeting()">💾 ${t('save')}</button><button class="btn" onclick="cancelForm()">${t('cancel')}</button></div>
+            <div class="action-group"><button class="btn btn-primary" onclick="submitNewMeeting()">💾 ${t('save')}</button><button class="btn" onclick="cancelForm()">Откажи</button></div>
         </div>`;
     }
     
     function renderCalendar() {
-        const monthNames = lang === "mk" ? ["јануари","февруари","март","април","мај","јуни","јули","август","септември","октомври","ноември","декември"] : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const months = lang === "mk" ? ["јан","фев","мар","апр","мај","јун","јул","авг","сеп","окт","ное","дек"] : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
         const daysInMonth = new Date(calendarYear, calendarMonth+1, 0).getDate();
         const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
         const start = firstDay === 0 ? 6 : firstDay - 1;
@@ -407,13 +343,13 @@
         for (let i=0; i<start; i++) days.push(null);
         for (let d=1; d<=daysInMonth; d++) days.push(d);
         while (days.length < 42) days.push(null);
-        let html = `<div class="card"><div class="month-nav"><button class="btn btn-sm" id="prevMonthBtn">◀</button><strong>${monthNames[calendarMonth]} ${calendarYear}</strong><button class="btn btn-sm" id="nextMonthBtn">▶</button></div><div class="calendar-grid">`;
-        ["Пон","Вто","Сре","Чет","Пет","Саб","Нед"].forEach(d => html += `<div style="text-align:center; font-weight:600;">${d}</div>`);
-        const activeMeetings = meetings.filter(m => !m.isArchived);
+        let html = `<div class="card"><div class="month-nav"><button class="btn btn-sm" id="prevMonthBtn">◀</button><strong>${months[calendarMonth]} ${calendarYear}</strong><button class="btn btn-sm" id="nextMonthBtn">▶</button></div><div class="calendar-grid">`;
+        ["П","В","С","Ч","П","С","Н"].forEach(d => html += `<div style="text-align:center; font-weight:600;">${d}</div>`);
+        const active = meetings.filter(m => !m.isArchived);
         days.forEach(d => {
             if (d === null) { html += `<div class="cal-day" style="opacity:0.3;"></div>`; return; }
             const dateStr = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            const dayMeetings = activeMeetings.filter(m => m.date === dateStr);
+            const dayMeetings = active.filter(m => m.date === dateStr);
             let ev = "";
             dayMeetings.forEach(m => { ev += `<div class="cal-event" onclick="alert('${escapeHtml(m.title_mk)}')">📌 ${escapeHtml(m.title_mk.substring(0,18))}</div>`; });
             const isToday = new Date().getDate() === d && new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
@@ -431,116 +367,59 @@
             <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; text-align:center;">
                 <div><div style="font-size:2rem; font-weight:800;">${activeCount}</div><div>Активни</div></div>
                 <div><div style="font-size:2rem; font-weight:800; color:#166534;">${archivedCount}</div><div>Архивирани</div></div>
-                <div><div style="font-size:2rem; font-weight:800; color:#2563eb;">${totalConsents}</div><div>Дадени согласувања</div></div>
+                <div><div style="font-size:2rem; font-weight:800; color:#2563eb;">${totalConsents}</div><div>Согласувања</div></div>
             </div>
         </div>`;
     }
     
     function renderLogin() {
-        return `<div class="login-container">
-            <div class="login-header">
-                <div class="login-logo"><div class="login-icon">НА</div><div class="login-icon">МОН</div></div>
-                <div class="login-title">${t('appTitle')}</div>
-                <div class="login-sub">${t('loginTitle')}</div>
-                <div class="lang-switch" style="justify-content:center; margin-top:10px;">
-                    <button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰 МКД</button>
-                    <button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧 EN</button>
-                </div>
-            </div>
+        return `<div class="login-container"><div class="login-header"><div class="login-logo"><div class="login-icon">НА</div><div class="login-icon">МОН</div></div>
+            <div class="login-title">NA-NAU</div><div class="login-sub">${t('loginTitle')}</div>
+            <div class="lang-switch" style="justify-content:center;"><button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰 МКД</button>
+            <button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧 EN</button></div></div>
             <div id="loginError" class="error-msg" style="display:none;"></div>
-            <div class="input-group"><label>${t('email')}</label><input type="email" id="loginEmail" placeholder="email@na.org.mk" autocomplete="off"></div>
-            <div class="input-group"><label>${t('password')}</label><input type="password" id="loginPassword" placeholder="********" autocomplete="off"></div>
-            <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">${t('login')}</button>
-        </div>`;
+            <div class="input-group"><label>${t('email')}</label><input type="email" id="loginEmail" autocomplete="off"></div>
+            <div class="input-group"><label>${t('password')}</label><input type="password" id="loginPassword" autocomplete="off"></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">${t('login')}</button></div>`;
     }
     
     function renderMainApp() {
         const tabs = [
-            { id: "meetings", label: t('meetings') },
-            { id: "new", label: t('newMeeting') },
-            { id: "calendar", label: t('calendar') },
-            { id: "stats", label: t('stats') },
-            { id: "archive", label: t('archive') }
+            { id: "meetings", label: t('meetings') }, { id: "new", label: t('newMeeting') },
+            { id: "calendar", label: t('calendar') }, { id: "stats", label: t('stats') }, { id: "archive", label: t('archive') }
         ];
         let tabsHtml = `<div class="tabs">`;
-        tabs.forEach(tab => {
-            tabsHtml += `<button class="tab ${currentTab === tab.id ? 'active' : ''}" data-tab="${tab.id}">${tab.label}</button>`;
-        });
+        tabs.forEach(tab => { tabsHtml += `<button class="tab ${currentTab === tab.id ? 'active' : ''}" data-tab="${tab.id}">${tab.label}</button>`; });
         tabsHtml += `</div>`;
-        let content = "";
-        if (currentTab === "meetings") content = renderMeetings();
-        else if (currentTab === "new") content = renderForm();
-        else if (currentTab === "calendar") content = renderCalendar();
-        else if (currentTab === "stats") content = renderStats();
-        else if (currentTab === "archive") content = renderArchive();
+        let content = currentTab === "meetings" ? renderMeetings() : (currentTab === "new" ? renderForm() : (currentTab === "calendar" ? renderCalendar() : (currentTab === "stats" ? renderStats() : renderArchive())));
         return tabsHtml + content;
     }
     
     function renderApp() {
-        const root = document.getElementById('appRoot');
-        if (!currentUser) {
-            root.innerHTML = renderLogin();
-        } else {
-            root.innerHTML = `
-                <div class="app">
-                    <div class="hdr">
-                        <div class="logo-section">
-                            <div class="logo-icon">НА</div>
-                            <div class="logo-text"><strong>НАЕОПМ</strong><br>Скопје</div>
-                            <div class="logo-icon">МОН</div>
-                            <div class="logo-text"><strong>Министерство за<br>образование и наука</strong></div>
-                            <div><div class="hdr-title">NA-NAU <span class="hdr-accent">Meeting<br>Management</span></div>
-                            <div class="hdr-sub">${t('appSub')}</div></div>
-                        </div>
-                        <div class="user-panel">
-                            <div class="lang-switch">
-                                <button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰 МКД</button>
-                                <button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧 EN</button>
-                            </div>
-                            <div class="user-info">${escapeHtml(currentUser.name)} (${escapeHtml(currentUser.position)})</div>
-                            <button class="btn-logout" onclick="logout()">${t('logout')}</button>
-                        </div>
-                    </div>
-                    ${renderMainApp()}
-                    <div class="footer-credit">Created by: D. Dimitrov · NA-NAU Meeting System</div>
-                </div>
-            `;
-            document.querySelectorAll('[data-tab]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    currentTab = btn.getAttribute('data-tab');
-                    renderApp();
-                });
-            });
-            document.getElementById("prevMonthBtn")?.addEventListener("click", () => { calendarMonth--; if(calendarMonth<0){calendarMonth=11;calendarYear--;} renderApp(); });
-            document.getElementById("nextMonthBtn")?.addEventListener("click", () => { calendarMonth++; if(calendarMonth>11){calendarMonth=0;calendarYear++;} renderApp(); });
-        }
+        document.getElementById('appRoot').innerHTML = !currentUser ? renderLogin() : 
+            `<div class="app"><div class="hdr"><div class="logo-section"><div class="logo-icon">НА</div><div class="logo-text"><strong>НАЕОПМ</strong><br>Скопје</div>
+            <div class="logo-icon">МОН</div><div class="logo-text"><strong>МОН</strong></div><div><div class="hdr-title">NA-NAU <span class="hdr-accent">Meeting</span></div>
+            <div class="hdr-sub">${t('appSub')}</div></div></div><div class="user-panel"><div class="lang-switch">
+            <button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰</button>
+            <button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧</button></div>
+            <div class="user-info">${escapeHtml(currentUser.name)}</div><button class="btn-logout" onclick="logout()">${t('logout')}</button></div></div>
+            ${renderMainApp()}<div class="footer-credit">Created by D.Dimitrov</div></div>`;
+        document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => { currentTab = btn.dataset.id; renderApp(); }));
+        document.getElementById("prevMonthBtn")?.addEventListener("click", () => { calendarMonth--; if(calendarMonth<0){calendarMonth=11;calendarYear--;} renderApp(); });
+        document.getElementById("nextMonthBtn")?.addEventListener("click", () => { calendarMonth++; if(calendarMonth>11){calendarMonth=0;calendarYear++;} renderApp(); });
     }
     
     function setLanguage(l) { lang = l; renderApp(); }
     function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
     
     window.doLogin = async function() {
-        const email = document.getElementById('loginEmail').value;
-        const pwd = document.getElementById('loginPassword').value;
-        const result = await login(email, pwd);
-        if (!result.success) {
-            document.getElementById('loginError').style.display = 'block';
-            document.getElementById('loginError').innerText = result.error;
-        }
+        const res = await login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
+        if (!res.success) { let err = document.getElementById('loginError'); err.style.display = 'block'; err.innerText = res.error; }
     }
+    window.toggleConsent = toggleConsent; window.deleteMeeting = deleteMeeting; window.submitNewMeeting = submitNewMeeting;
+    window.exportMeetingMinutes = exportMeetingMinutes; window.cancelForm = cancelForm; window.setLanguage = setLanguage;
     
-    window.toggleConsent = toggleConsent;
-    window.deleteMeeting = deleteMeeting;
-    window.submitNewMeeting = submitNewMeeting;
-    window.exportMeetingMinutes = exportMeetingMinutes;
-    window.cancelForm = cancelForm;
-    window.setLanguage = setLanguage;
-    
-    async function init() {
-        await loadUsers();
-        renderApp();
-    }
-    init();
+    (async () => { await loadUsers(); renderApp(); })();
 </script>
 </body>
 </html>
