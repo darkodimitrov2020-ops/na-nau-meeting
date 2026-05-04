@@ -68,10 +68,17 @@
 <script>
     // ==================== КОНФИГУРАЦИЈА ====================
     // ⚠️ ЗАМЕНЕТЕ ГО ОВОЈ URL СО ВАШИОТ ОД APPS SCRIPT!
-    const API_URL = "https://script.google.com/macros/s/AKfycbzHL6t_lgjeQrp9LExfY0N9-BIgG8QbPVfKvXvaqlvUYqzRcE-HyE9RASyCvwI7nN-p/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwnz3DpQM0TGYMhF-oEH1sYZEG0i2zytLXEQDwjI2C5CnUta6gUwo4lT0Wn8bYKGKoO/exec";
     
-    let meetings = [], users = [], currentUser = null, currentTab = "meetings", lang = "mk", selectedMeetingForModal = null;
-    let lastMeetingCount = 0;
+    // ЛОКАЛНИ КОРИСНИЦИ (за случај API-то да не враќа)
+    const LOCAL_USERS = [
+        { id: 1, name: "Дарко Димитров", position: "Раководител на сектор", email: "darko.dimitrov@na.org.mk", password: "12345", isAdmin: true },
+        { id: 2, name: "Марија Стојановска", position: "Помошник раководител", email: "marija@na.org.mk", password: "12345", isAdmin: false },
+        { id: 3, name: "Александар Николовски", position: "Советник", email: "aleksandar@na.org.mk", password: "12345", isAdmin: false },
+        { id: 4, name: "Ана Костовска", position: "Службеник", email: "ana@na.org.mk", password: "12345", isAdmin: false }
+    ];
+    
+    let meetings = [], users = LOCAL_USERS, currentUser = null, currentTab = "meetings", lang = "mk", selectedMeetingForModal = null;
     
     const savedUser = sessionStorage.getItem('na_nau_currentUser');
     if (savedUser) { try { currentUser = JSON.parse(savedUser); } catch(e) {} }
@@ -119,11 +126,7 @@
     async function loadMeetings() { 
         const data = await apiGet('getMeetings'); 
         if (data.success && data.meetings) { 
-            const oldCount = meetings.length;
             meetings = data.meetings.map(m => ({ ...m, consents: m.consents || [], isArchived: m.isArchived === true })); 
-            if (currentUser && meetings.length > oldCount && oldCount > 0) {
-                showNotification(`${t('notificationNewMeeting')}!`);
-            }
         } else { meetings = []; } 
         if (currentUser) renderApp(); 
     }
@@ -138,16 +141,15 @@
     }
     
     async function loadUsers() { 
-        const data = await apiGet('getUsers'); 
-        if (data.success && data.users && data.users.length > 0) { 
-            users = data.users; 
-        } else { 
-            users = [
-                { id: 1, name: "Дарко Димитров", position: "Раководител на сектор", email: "darko.dimitrov@na.org.mk", password: "12345", isAdmin: true },
-                { id: 2, name: "Марија Стојановска", position: "Помошник раководител", email: "marija@na.org.mk", password: "12345", isAdmin: false },
-                { id: 3, name: "Александар Николовски", position: "Советник", email: "aleksandar@na.org.mk", password: "12345", isAdmin: false },
-                { id: 4, name: "Ана Костовска", position: "Службеник", email: "ana@na.org.mk", password: "12345", isAdmin: false }
-            ];
+        try {
+            const data = await apiGet('getUsers'); 
+            if (data.success && data.users && data.users.length > 0) { 
+                users = data.users; 
+            } else { 
+                users = LOCAL_USERS; 
+            }
+        } catch(e) {
+            users = LOCAL_USERS;
         }
     }
     
@@ -236,7 +238,7 @@
         const attendees = (meeting.attendees || '').split(',').map(s=>s.trim()).filter(s=>s);
         const consents = meeting.consents || [];
         
-        let signaturesHtml = `<table style="width:100%; border-collapse:collapse;"><thead><tr style="background-color:#003399;color:white;"><th style="padding:10px;border:1px solid #ddd;">${lang==='mk'?'Име':'Name'}</th><th style="padding:10px;border:1px solid #ddd;">Email</th><th style="padding:10px;border:1px solid #ddd;">${lang==='mk'?'Статус':'Status'}</th><th style="padding:10px;border:1px solid #ddd;">${lang==='mk'?'Потпис':'Signature'}</th><tr></thead><tbody>`;
+        let signaturesHtml = `<table style="width:100%; border-collapse:collapse;"><thead><tr style="background-color:#003399;color:white;"><th style="padding:10px;border:1px solid #ddd;">${lang==='mk'?'Име':'Name'}</th><th style="padding:10px;border:1px solid #ddd;">Email</th><th style="padding:10px;border:1px solid #ddd;">${lang==='mk'?'Статус':'Status'}</th><th style="padding:10px;border:1px solid #ddd;">${lang==='mk'?'Потпис':'Signature'}</th></tr></thead><tbody>`;
         attendees.forEach(email => {
             const user = users.find(u=>u.email===email);
             const name = user ? user.name : email;
