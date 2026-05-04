@@ -2,12 +2,14 @@
 <html lang="mk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NA-NAU · Meeting Management</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f8; color: #0f172a; font-size: 14px; line-height: 1.4; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f8; color: #0f172a; font-size: 14px; }
         .app { max-width: 1300px; margin: 0 auto; padding: 1rem; }
+        
+        /* Header */
         .hdr { background: white; border-radius: 1rem; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; }
         .logo-section { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
         .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #1e40af, #3b82f6); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; color: white; }
@@ -16,6 +18,7 @@
         .hdr-title { font-size: 1.3rem; font-weight: 700; }
         .hdr-accent { color: #2563eb; }
         .hdr-sub { font-size: 0.7rem; color: #64748b; }
+        
         .user-panel { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .user-info { background: #dbeafe; padding: 6px 14px; border-radius: 30px; font-size: 0.8rem; font-weight: 500; }
         .btn-logout { background: #fee2e2; border: none; padding: 6px 14px; border-radius: 30px; cursor: pointer; font-weight: 500; }
@@ -23,46 +26,50 @@
         .lang-btn { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
         .lang-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
         
+        /* Tabs */
         .tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; border-bottom: 2px solid #cbd5e1; padding-bottom: 4px; }
         .tab { padding: 8px 20px; border-radius: 30px; background: transparent; border: none; color: #64748b; font-weight: 600; cursor: pointer; }
         .tab:hover { background: #eef2f6; }
         .tab.active { background: #2563eb; color: white; }
         
+        /* Cards */
         .card { background: white; border-radius: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 1rem; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid #eef2f6; flex-wrap: wrap; gap: 10px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid #eef2f6; }
         .card-title { font-size: 1rem; font-weight: 700; }
         
+        /* Buttons */
         .btn { padding: 6px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: all 0.2s; }
         .btn:hover { background: #f1f5f9; transform: translateY(-1px); }
         .btn-primary { background: #2563eb; border-color: #2563eb; color: white; }
         .btn-primary:hover { background: #1d4ed8; }
         .btn-danger { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
-        .btn-danger:hover { background: #fecaca; }
         .btn-sm { padding: 4px 10px; font-size: 0.7rem; }
         .btn-success { background: #dcfce7; border-color: #bbf7d0; color: #166534; }
+        .consent-btn { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; cursor: pointer; }
+        .consent-btn.active { background: #166534; color: white; border-color: #166534; cursor: default; }
         
-        .consent-btn { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; }
-        .consent-btn.active { background: #166534; color: white; border-color: #166534; }
-        
+        /* Forms */
         .fi { margin-bottom: 1rem; }
         .fi label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 5px; color: #334155; }
-        input, select, textarea { width: 100%; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 0.85rem; }
+        input, select, textarea { width: 100%; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; }
         textarea { resize: vertical; min-height: 80px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         
-        .meeting-list-item { background: #f8fafc; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s; }
-        .meeting-list-item:hover { border-color: #2563eb; background: #eff6ff; }
+        /* Meeting items */
+        .meeting-item { background: #f8fafc; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; transition: all 0.2s; }
         .meeting-title { font-weight: 700; font-size: 1rem; }
-        .badge { display: inline-flex; padding: 3px 10px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
-        .badge.open { background: #fef3c7; color: #92400e; }
         .meta { font-size: 0.75rem; color: #64748b; margin: 6px 0; display: flex; flex-wrap: wrap; gap: 12px; }
+        .action-group { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; justify-content: flex-end; }
+        .approved-by { font-size: 0.7rem; color: #166534; margin-top: 5px; padding-top: 5px; border-top: 1px dashed #bbf7d0; }
         
-        .consent-list { margin-top: 12px; background: #f8fafc; border-radius: 8px; padding: 10px; }
-        .consent-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.75rem; }
+        /* Consent list */
+        .consent-list { margin-top: 8px; background: #f8fafc; border-radius: 8px; padding: 8px; font-size: 0.7rem; }
+        .consent-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e2e8f0; }
         .consent-item:last-child { border-bottom: none; }
         .consent-yes { color: #166534; font-weight: 600; }
         .consent-no { color: #991b1b; }
         
+        /* Calendar */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 1rem; }
         .cal-day { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; min-height: 90px; padding: 8px; }
         .cal-day.today { border-color: #2563eb; background: #dbeafe; }
@@ -70,19 +77,15 @@
         .cal-event { font-size: 0.65rem; background: white; border-radius: 6px; padding: 2px 5px; margin-top: 3px; cursor: pointer; border-left: 3px solid #2563eb; }
         .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
         
-        .employee-grid { display: grid; gap: 10px; }
-        .empty { text-align: center; padding: 2rem; color: #64748b; }
-        .footer-credit { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.7rem; color: #64748b; border-top: 1px solid #e2e8f0; }
-        
+        /* Login */
         .login-container { max-width: 450px; margin: 3rem auto; background: white; border-radius: 1.5rem; padding: 2rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
         .login-header { text-align: center; margin-bottom: 2rem; }
         .login-logo { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
         .login-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #1e40af, #3b82f6); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: white; }
         .error-msg { background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; font-size: 0.75rem; margin-bottom: 1rem; text-align: center; }
         
-        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; border-radius: 1rem; max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 1.5rem; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #eef2f6; }
+        .empty { text-align: center; padding: 2rem; color: #64748b; }
+        .footer-credit { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.7rem; color: #64748b; border-top: 1px solid #e2e8f0; }
         
         @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
@@ -95,8 +98,6 @@
     // КОНФИГУРАЦИЈА
     // ============================================
     const API_URL = "https://script.google.com/macros/s/AKfycbwxTZa-6U7DHGZvvN9rbLDNegXAPuCxyCfIBum7FIKTNUIOsmwrKP8kzw-gYcITsqqu/exec";
-    const DEFAULT_PASSWORD = "12345";
-
     let meetings = [];
     let users = [];
     let currentUser = null;
@@ -104,45 +105,36 @@
     let calendarYear = new Date().getFullYear();
     let calendarMonth = new Date().getMonth();
     let lang = "mk";
-    let selectedMeetingForModal = null;
-
+    
     // ============================================
     // ПРЕВОДИ
     // ============================================
     const translations = {
         mk: {
             appTitle: "NA-NAU Meeting Management", appSub: "Систем за согласување на состаноци",
-            meetings: "📋 Состаноци", newMeeting: "➕ Нов состанок", calendar: "📅 Календар", stats: "📊 Статистика", employees: "👥 Вработени", settings: "⚙️ Поставки", profile: "🔐 Профил",
-            loginTitle: "Најава со е-пошта и лозинка", email: "Е-пошта", password: "Лозинка", login: "Најави се", defaultPasswordHint: "Дефолт лозинка: 12345", logout: "Одјави се",
-            noMeetings: "Нема состаноци. Кликни \"+ Нов состанок\" за да додадеш.", addMeeting: "Нов состанок", editMeeting: "Уреди состанок",
-            title: "Наслов", date: "Датум", time: "Време", location: "Локација", attendees: "Присутни (е-пошти, раздвоени со запирка)",
-            agenda: "Дневен ред", minutes: "Записник", decisions: "Заклучоци", save: "Зачувај", cancel: "Откажи", close: "Затвори",
-            agree: "📝 Се согласувам", agreed: "✓ Се согласив", exportReport: "📄 Извештај со потписи", delete: "🗑️ Избриши",
-            resetPassword: "Ресетирај лозинка", changePassword: "Промени лозинка", oldPassword: "Стара лозинка", newPassword: "Нова лозинка", confirmPassword: "Потврди нова лозинка", change: "Промени",
-            addUser: "Додади вработен", name: "Име и презиме", position: "Звање / Функција", institution: "Институција", isAdmin: "Администратор",
-            total: "Вкупно состаноци", totalConsents: "Дадени согласувања", consentList: "Список на согласувања", consented: "Се согласил", notConsented: "Не се согласил",
-            errorUserNotFound: "Нема корисник со оваа е-пошта", errorWrongPassword: "Погрешна лозинка", errorPasswordsDontMatch: "Лозинките не се совпаѓаат",
-            successPasswordChanged: "Лозинката е променета", successUserAdded: "Вработениот е додаден", successUserDeleted: "Вработениот е избришан",
-            confirmDelete: "Дали сте сигурни?", cannotDeleteSelf: "Не можете да избришете самиот себеси!", enterTitle: "Внесете наслов!"
+            meetings: "📋 Состаноци", newMeeting: "➕ Нов состанок", calendar: "📅 Календар", stats: "📊 Статистика", archive: "📦 Архива",
+            loginTitle: "Најава со е-пошта и лозинка", email: "Е-пошта", password: "Лозинка", login: "Најави се", logout: "Одјави се",
+            noMeetings: "Нема активни состаноци.", addMeeting: "Нов состанок", title: "Наслов", date: "Датум", time: "Време", location: "Локација",
+            attendees: "Присутни (е-пошти, раздвоени со запирка)", agenda: "Дневен ред", minutes: "Записник", decisions: "Заклучоци",
+            save: "Зачувај", cancel: "Откажи", agree: "📝 Се согласувам", agreed: "✓ Се согласив", exportReport: "📄 Извештај со потписи",
+            delete: "🗑️ Избриши", total: "Вкупно состаноци", totalConsents: "Дадени согласувања", archiveEmpty: "Нема архивирани состаноци.",
+            errorUserNotFound: "Нема корисник со оваа е-пошта", errorWrongPassword: "Погрешна лозинка", enterTitle: "Внесете наслов!",
+            approvedBy: "Одобрен од:", allApproved: "Сите се согласија"
         },
         en: {
             appTitle: "NA-NAU Meeting Management", appSub: "Meeting Consent System",
-            meetings: "📋 Meetings", newMeeting: "➕ New Meeting", calendar: "📅 Calendar", stats: "📊 Statistics", employees: "👥 Employees", settings: "⚙️ Settings", profile: "🔐 Profile",
-            loginTitle: "Login with email and password", email: "Email", password: "Password", login: "Login", defaultPasswordHint: "Default password: 12345", logout: "Logout",
-            noMeetings: "No meetings. Click '+ New Meeting' to add one.", addMeeting: "New Meeting", editMeeting: "Edit Meeting",
-            title: "Title", date: "Date", time: "Time", location: "Location", attendees: "Attendees (emails, comma separated)",
-            agenda: "Agenda", minutes: "Minutes", decisions: "Decisions", save: "Save", cancel: "Cancel", close: "Close",
-            agree: "📝 I agree", agreed: "✓ I agreed", exportReport: "📄 Report with signatures", delete: "🗑️ Delete",
-            resetPassword: "Reset password", changePassword: "Change password", oldPassword: "Old password", newPassword: "New password", confirmPassword: "Confirm new password", change: "Change",
-            addUser: "Add employee", name: "Full name", position: "Title / Position", institution: "Institution", isAdmin: "Administrator",
-            total: "Total meetings", totalConsents: "Total consents", consentList: "Consent list", consented: "Consented", notConsented: "Not consented",
-            errorUserNotFound: "User not found", errorWrongPassword: "Wrong password", errorPasswordsDontMatch: "Passwords do not match",
-            successPasswordChanged: "Password changed successfully", successUserAdded: "Employee added successfully", successUserDeleted: "Employee deleted successfully",
-            confirmDelete: "Are you sure?", cannotDeleteSelf: "You cannot delete yourself!", enterTitle: "Please enter a title!"
+            meetings: "📋 Meetings", newMeeting: "➕ New Meeting", calendar: "📅 Calendar", stats: "📊 Statistics", archive: "📦 Archive",
+            loginTitle: "Login with email and password", email: "Email", password: "Password", login: "Login", logout: "Logout",
+            noMeetings: "No active meetings.", addMeeting: "New Meeting", title: "Title", date: "Date", time: "Time", location: "Location",
+            attendees: "Attendees (emails, comma separated)", agenda: "Agenda", minutes: "Minutes", decisions: "Decisions",
+            save: "Save", cancel: "Cancel", agree: "📝 I agree", agreed: "✓ I agreed", exportReport: "📄 Report with signatures",
+            delete: "🗑️ Delete", total: "Total meetings", totalConsents: "Total consents", archiveEmpty: "No archived meetings.",
+            errorUserNotFound: "User not found", errorWrongPassword: "Wrong password", enterTitle: "Please enter a title!",
+            approvedBy: "Approved by:", allApproved: "All agreed"
         }
     };
     function t(key) { return translations[lang][key] || key; }
-
+    
     // ============================================
     // API ПОВИЦИ
     // ============================================
@@ -150,7 +142,7 @@
         try {
             const response = await fetch(`${API_URL}?action=${action}&_=${Date.now()}`);
             return await response.json();
-        } catch(e) { console.error(e); return { success: false, error: e.message }; }
+        } catch(e) { return { success: false, error: e.message }; }
     }
     async function apiPost(action, data) {
         try {
@@ -160,21 +152,22 @@
                 headers: { "Content-Type": "application/json" }
             });
             return { success: true };
-        } catch(e) { console.error(e); return { success: false, error: e.message }; }
+        } catch(e) { return { success: false, error: e.message }; }
     }
-
+    
     async function loadMeetings() {
         const data = await apiGet('getMeetings');
         if (data.success && data.meetings) {
             meetings = data.meetings.map(m => ({
                 ...m,
                 date: m.date ? m.date.split('T')[0] : m.date,
-                consents: Array.isArray(m.consents) ? m.consents : []
+                consents: Array.isArray(m.consents) ? m.consents : [],
+                isArchived: m.isArchived || false
             }));
         } else { meetings = []; }
         if (currentUser) renderApp();
     }
-
+    
     async function loadUsers() {
         const data = await apiGet('getUsers');
         if (data.success && data.users && data.users.length > 0) {
@@ -188,12 +181,10 @@
             ];
         }
     }
-
+    
     async function saveMeetingToCloud(meeting) { return await apiPost('saveMeeting', meeting); }
     async function deleteMeetingFromCloud(id) { return await apiPost('deleteMeeting', { id: id }); }
-    async function saveUserToCloud(user) { return await apiPost('saveUser', user); }
-    async function deleteUserFromCloud(id) { return await apiPost('deleteUser', { id: id }); }
-
+    
     // ============================================
     // ФУНКЦИИ ЗА СОГЛАСУВАЊЕ
     // ============================================
@@ -202,10 +193,17 @@
         const consents = meeting.consents || [];
         return Array.isArray(consents) && consents.includes(currentUser.email);
     }
-
+    
+    function isFullyConsented(meeting) {
+        const attendees = meeting.attendees ? meeting.attendees.split(',').map(s => s.trim()) : [];
+        const consents = meeting.consents || [];
+        if (attendees.length === 0) return false;
+        return attendees.every(email => consents.includes(email));
+    }
+    
     async function toggleConsent(meetingId) {
         const meeting = meetings.find(m => m.id === meetingId);
-        if (!meeting) return;
+        if (!meeting || meeting.isArchived) return;
         let consents = meeting.consents || [];
         if (!Array.isArray(consents)) consents = [];
         if (consents.includes(currentUser.email)) {
@@ -214,88 +212,28 @@
         }
         consents.push(currentUser.email);
         meeting.consents = consents;
+        
+        // Провери дали сите се согласиле - ТОГАШ АРХИВИРАЈ
+        const allConsented = isFullyConsented(meeting);
+        if (allConsented) {
+            meeting.isArchived = true;
+            meeting.archivedBy = currentUser.email;
+            meeting.archivedByName = currentUser.name;
+            meeting.archivedDate = new Date().toISOString();
+        }
+        
         await saveMeetingToCloud(meeting);
         await loadMeetings();
-        if (selectedMeetingForModal?.id === meetingId) {
-            selectedMeetingForModal = meeting;
-            renderModal();
-        }
-    }
-
-    // ============================================
-    // ПРОМЕНА НА ЛОЗИНКА
-    // ============================================
-    async function changePassword() {
-        const oldPwd = document.getElementById('oldPassword')?.value;
-        const newPwd = document.getElementById('newPassword')?.value;
-        const confirmPwd = document.getElementById('confirmPassword')?.value;
-        if (!oldPwd || !newPwd || !confirmPwd) { alert("Пополнете ги сите полиња!"); return; }
-        if (currentUser.password !== oldPwd) { alert(t('errorWrongPassword')); return; }
-        if (newPwd !== confirmPwd) { alert(t('errorPasswordsDontMatch')); return; }
-        if (newPwd.length < 4) { alert("Лозинката мора да има најмалку 4 карактери!"); return; }
-        currentUser.password = newPwd;
-        await saveUserToCloud(currentUser);
-        alert(t('successPasswordChanged'));
-        await loadUsers();
         renderApp();
     }
-
-    // ============================================
-    // ДОДАВАЊЕ И БРИСЕЊЕ НА КОРИСНИЦИ
-    // ============================================
-    async function addNewUser() {
-        if (!currentUser?.isAdmin) { alert("Само администратор може да додава вработени!"); return; }
-        const name = document.getElementById('newUserName')?.value.trim();
-        const email = document.getElementById('newUserEmail')?.value.trim();
-        const position = document.getElementById('newUserPosition')?.value.trim();
-        const institution = document.getElementById('newUserInstitution')?.value.trim();
-        const isAdmin = document.getElementById('newUserIsAdmin')?.checked;
-        if (!name || !email) { alert("Внесете име и е-пошта!"); return; }
-        if (users.find(u => u.email === email)) { alert("Веќе постои корисник со оваа е-пошта!"); return; }
-        const newId = Math.max(...users.map(u => u.id), 0) + 1;
-        const newUser = { id: newId, name, email, position: position || "Службеник", institution: institution || "", password: DEFAULT_PASSWORD, isAdmin: isAdmin || false };
-        await saveUserToCloud(newUser);
-        await loadUsers();
-        alert(t('successUserAdded'));
-        document.getElementById('newUserName').value = "";
-        document.getElementById('newUserEmail').value = "";
-        document.getElementById('newUserPosition').value = "";
-        document.getElementById('newUserInstitution').value = "";
-        document.getElementById('newUserIsAdmin').checked = false;
-        renderApp();
-    }
-
-    async function deleteUser(userId) {
-        if (!currentUser?.isAdmin) { alert("Само администратор може да брише вработени!"); return; }
-        if (userId === currentUser.id) { alert(t('cannotDeleteSelf')); return; }
-        if (confirm(t('confirmDelete'))) {
-            await deleteUserFromCloud(userId);
-            await loadUsers();
-            alert(t('successUserDeleted'));
-            renderApp();
-        }
-    }
-
-    async function resetUserPassword(userId) {
-        if (!currentUser?.isAdmin) { alert("Само администратор може да ресетира лозинки!"); return; }
-        const user = users.find(u => u.id === userId);
-        if (!user) return;
-        user.password = DEFAULT_PASSWORD;
-        await saveUserToCloud(user);
-        alert(`Лозинката за ${user.name} е ресетирана на ${DEFAULT_PASSWORD}`);
-        await loadUsers();
-        renderApp();
-    }
-
+    
     // ============================================
     // АВТЕНТИКАЦИЈА
     // ============================================
     async function login(email, password) {
         email = email.trim().toLowerCase();
         password = password.trim();
-        
         await loadUsers();
-        
         const user = users.find(u => u.email.toLowerCase() === email);
         if (!user) return { success: false, error: t('errorUserNotFound') };
         if (user.password !== password) return { success: false, error: t('errorWrongPassword') };
@@ -304,240 +242,17 @@
         renderApp();
         return { success: true };
     }
-
-    function logout() { currentUser = null; renderApp(); }
-
+    
+    function logout() { 
+        currentUser = null; 
+        renderApp(); 
+    }
+    
     // ============================================
-    // КРЕИРАЊЕ/УРЕДУВАЊЕ/БРИСЕЊЕ НА СОСТАНОЦИ
+    // КРЕИРАЊЕ НА СОСТАНОЦИ (САМО АДМИН)
     // ============================================
-    async function saveMeeting() {
-        const title_mk = document.getElementById('edit_title_mk')?.value;
-        if (!title_mk) { alert(t('enterTitle')); return; }
-        const meetingData = {
-            id: selectedMeetingForModal?.id || -1,
-            title_mk: title_mk,
-            title_en: document.getElementById('edit_title_en')?.value || "",
-            date: document.getElementById('edit_date')?.value,
-            time: document.getElementById('edit_time')?.value || "10:00",
-            location: document.getElementById('edit_location')?.value || "",
-            attendees: document.getElementById('edit_attendees')?.value || "",
-            agenda_mk: document.getElementById('edit_agenda_mk')?.value || "",
-            agenda_en: document.getElementById('edit_agenda_en')?.value || "",
-            minutes_mk: document.getElementById('edit_minutes_mk')?.value || "",
-            minutes_en: document.getElementById('edit_minutes_en')?.value || "",
-            decisions_mk: document.getElementById('edit_decisions_mk')?.value || "",
-            decisions_en: document.getElementById('edit_decisions_en')?.value || "",
-            status: "open",
-            consents: selectedMeetingForModal?.consents || [],
-            created_by: currentUser.id,
-            created_by_name: currentUser.name
-        };
-        await saveMeetingToCloud(meetingData);
-        alert("✅ Зачувано!");
-        closeModal();
-        await loadMeetings();
-    }
-
-    async function deleteMeetingFromModal() {
-        if (!selectedMeetingForModal) return;
-        if (!currentUser.isAdmin) { alert("Само администратор може да брише состаноци!"); return; }
-        if (confirm("Избриши го состанокот?")) {
-            await deleteMeetingFromCloud(selectedMeetingForModal.id);
-            closeModal();
-            await loadMeetings();
-        }
-    }
-
-    async function deleteMeetingDirect(id) {
-        if (!currentUser.isAdmin) { alert("Само администратор може да брише состаноци!"); return; }
-        if (confirm("Избриши го состанокот?")) {
-            await deleteMeetingFromCloud(id);
-            await loadMeetings();
-        }
-    }
-
-    function openMeetingModal(meeting) {
-        selectedMeetingForModal = JSON.parse(JSON.stringify(meeting));
-        renderModal();
-    }
-
-    function closeModal() {
-        selectedMeetingForModal = null;
-        document.getElementById('modalContainer')?.remove();
-        renderApp();
-    }
-
-    function renderModal() {
-        const existing = document.getElementById('modalContainer');
-        if (existing) existing.remove();
-        if (!selectedMeetingForModal) return;
-        
-        const m = selectedMeetingForModal;
-        const attendeesList = m.attendees ? String(m.attendees).split(',').map(s => s.trim()) : [];
-        const consents = m.consents || [];
-        
-        let consentHtml = `<div class="consent-list"><strong>📋 ${t('consentList')}:</strong>`;
-        attendeesList.forEach(email => {
-            const user = users.find(u => u.email === email);
-            const name = user ? user.name : email;
-            const hasConsented = consents.includes(email);
-            consentHtml += `<div class="consent-item"><span>${escapeHtml(name)} (${escapeHtml(email)})</span><span class="${hasConsented ? 'consent-yes' : 'consent-no'}">${hasConsented ? '✓ ' + t('consented') : '✗ ' + t('notConsented')}</span></div>`;
-        });
-        consentHtml += `</div>`;
-        
-        const isCreator = currentUser.id === m.created_by;
-        const canEdit = currentUser.isAdmin || isCreator;
-        
-        const modalHtml = `
-            <div id="modalContainer" class="modal" onclick="if(event.target===this) closeModal()">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>${canEdit ? t('editMeeting') : escapeHtml(m.title_mk || '')}</h3>
-                        <button class="btn btn-sm" onclick="closeModal()">✖ ${t('close')}</button>
-                    </div>
-                    ${canEdit ? `
-                        <div class="fi"><label>${t('title')} (македонски)*</label><input type="text" id="edit_title_mk" value="${escapeHtml(m.title_mk || '')}"></div>
-                        <div class="fi"><label>${t('title')} (англиски)</label><input type="text" id="edit_title_en" value="${escapeHtml(m.title_en || '')}"></div>
-                        <div class="grid-2">
-                            <div class="fi"><label>${t('date')}</label><input type="date" id="edit_date" value="${m.date || ''}"></div>
-                            <div class="fi"><label>${t('time')}</label><input type="time" id="edit_time" value="${m.time || '10:00'}"></div>
-                        </div>
-                        <div class="fi"><label>${t('location')}</label><input type="text" id="edit_location" value="${escapeHtml(m.location || '')}"></div>
-                        <div class="fi"><label>${t('attendees')}</label><input type="text" id="edit_attendees" value="${escapeHtml(m.attendees || '')}"></div>
-                        <div class="fi"><label>${t('agenda')} (македонски)</label><textarea id="edit_agenda_mk">${escapeHtml(m.agenda_mk || '')}</textarea></div>
-                        <div class="fi"><label>${t('agenda')} (англиски)</label><textarea id="edit_agenda_en">${escapeHtml(m.agenda_en || '')}</textarea></div>
-                        <div class="fi"><label>${t('minutes')} (македонски)</label><textarea id="edit_minutes_mk">${escapeHtml(m.minutes_mk || '')}</textarea></div>
-                        <div class="fi"><label>${t('minutes')} (англиски)</label><textarea id="edit_minutes_en">${escapeHtml(m.minutes_en || '')}</textarea></div>
-                        <div class="fi"><label>${t('decisions')} (македонски)</label><textarea id="edit_decisions_mk">${escapeHtml(m.decisions_mk || '')}</textarea></div>
-                        <div class="fi"><label>${t('decisions')} (англиски)</label><textarea id="edit_decisions_en">${escapeHtml(m.decisions_en || '')}</textarea></div>
-                        <div class="action-group" style="display:flex; gap:8px; margin-top:15px; flex-wrap:wrap;">
-                            <button class="btn btn-primary" onclick="saveMeeting()">💾 ${t('save')}</button>
-                            ${currentUser.isAdmin ? `<button class="btn btn-danger" onclick="deleteMeetingFromModal()">🗑️ ${t('delete')}</button>` : ''}
-                        </div>
-                    ` : `
-                        <div><strong>${t('title')}:</strong> ${escapeHtml(m.title_mk || '')}</div>
-                        <div class="meta">📅 ${m.date || ''} | ⏰ ${m.time || ''} | 📍 ${escapeHtml(m.location || '')}</div>
-                        <div><strong>👥 ${t('attendees')}:</strong> ${escapeHtml(m.attendees || '')}</div>
-                        <hr style="margin:10px 0;">
-                        <div><strong>📋 ${t('agenda')}:</strong><br>${escapeHtml(m.agenda_mk || '').replace(/\n/g,'<br>')}</div>
-                        <hr style="margin:10px 0;">
-                        <div><strong>📝 ${t('minutes')}:</strong><br>${escapeHtml(m.minutes_mk || '').replace(/\n/g,'<br>')}</div>
-                        <hr style="margin:10px 0;">
-                        <div><strong>✅ ${t('decisions')}:</strong><br>${escapeHtml(m.decisions_mk || '').replace(/\n/g,'<br>')}</div>
-                    `}
-                    ${consentHtml}
-                    <div style="margin-top:15px; display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn consent-btn ${hasUserConsented(m) ? 'active' : ''}" onclick="toggleConsent(${m.id})">${hasUserConsented(m) ? t('agreed') : t('agree')}</button>
-                        <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>${t('exportReport')}</button>
-                        ${!canEdit && currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeetingDirect(${m.id})'>${t('delete')}</button>` : ''}
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-    }
-
-    function exportMeetingMinutes(meeting) {
-        const consents = meeting.consents || [];
-        const attendees = meeting.attendees ? String(meeting.attendees).split(',').map(s => s.trim()) : [];
-        let signaturesHtml = '<h3>' + (lang === 'mk' ? 'Потписи / Согласувања' : 'Signatures / Consents') + '</h3><table border="1" cellpadding="5" style="width:100%; border-collapse:collapse;"><thead><tr bgcolor="#f0f0f0"><th>' + (lang === 'mk' ? 'Име / Е-пошта' : 'Name / Email') + '</th><th>' + (lang === 'mk' ? 'Статус' : 'Status') + '</th><th>' + (lang === 'mk' ? 'Датум' : 'Date') + '</th></tr></thead><tbody>';
-        attendees.forEach(email => {
-            const user = users.find(u => u.email === email);
-            const name = user ? user.name : email;
-            const hasConsented = consents.includes(email);
-            signaturesHtml += `<tr><td>${escapeHtml(name)} (${escapeHtml(email)})</td><td>${hasConsented ? '✓ ' + (lang === 'mk' ? 'СЕ СОГЛАСУВА' : 'AGREES') : '✗ ' + (lang === 'mk' ? 'НЕ СЕ СОГЛАСУВА' : 'DOES NOT AGREE')}</td><td>${hasConsented ? new Date().toLocaleDateString() : ''}</td></tr>`;
-        });
-        signaturesHtml += '</tbody></table>';
-        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(meeting.title_mk)} - ${lang === 'mk' ? 'Записник' : 'Minutes'}</title><style>body{font-family:Calibri; margin:2rem;} table{border-collapse:collapse; width:100%;} td,th{border:1px solid #999; padding:8px;}</style></head><body><h1>${lang === 'mk' ? 'ЗАПИСНИК ОД СОСТАНОК' : 'MEETING MINUTES'}</h1><h2>${escapeHtml(lang === 'mk' ? meeting.title_mk : (meeting.title_en || meeting.title_mk))}</h2><p><strong>${t('date')}:</strong> ${meeting.date}<br><strong>${t('location')}:</strong> ${escapeHtml(meeting.location)}</p><h3>${t('agenda')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.agenda_mk : (meeting.agenda_en || meeting.agenda_mk)).replace(/\n/g,'<br>')}</p><h3>${t('minutes')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.minutes_mk : (meeting.minutes_en || meeting.minutes_mk)).replace(/\n/g,'<br>')}</p><h3>${t('decisions')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.decisions_mk : (meeting.decisions_en || meeting.decisions_mk)).replace(/\n/g,'<br>')}</p>${signaturesHtml}<footer><p>NA-NAU · ${new Date().toLocaleString()}</p></footer></body></html>`;
-        const blob = new Blob([html], { type: "application/msword" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `Meeting_${String(meeting.title_mk).replace(/[^a-z0-9]/gi,'_')}_${meeting.date || ''}.doc`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-    }
-
-    // ============================================
-    // РЕНДЕРИРАЊЕ
-    // ============================================
-    function renderCalendar() {
-        const monthNames = lang === "mk" ? ["јануари","февруари","март","април","мај","јуни","јули","август","септември","октомври","ноември","декември"] : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-        const daysInMonth = new Date(calendarYear, calendarMonth+1, 0).getDate();
-        const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
-        const start = firstDay === 0 ? 6 : firstDay - 1;
-        let days = [];
-        for (let i=0; i<start; i++) days.push(null);
-        for (let d=1; d<=daysInMonth; d++) days.push(d);
-        while (days.length < 42) days.push(null);
-        let html = `<div class="card"><div class="month-nav"><button class="btn btn-sm" id="prevMonthBtn">◀</button><strong>${monthNames[calendarMonth]} ${calendarYear}</strong><button class="btn btn-sm" id="nextMonthBtn">▶</button></div><div class="calendar-grid">`;
-        const weekDays = lang === "mk" ? ["Пон","Вто","Сре","Чет","Пет","Саб","Нед"] : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-        weekDays.forEach(d => html += `<div style="text-align:center; font-weight:600;">${d}</div>`);
-        const today = new Date();
-        days.forEach(d => {
-            if (d === null) { html += `<div class="cal-day" style="opacity:0.3;"></div>`; return; }
-            const dateStr = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            const isToday = today.getDate() === d && today.getMonth() === calendarMonth && today.getFullYear() === calendarYear;
-            const dayMeetings = meetings.filter(m => m.date === dateStr);
-            let ev = "";
-            dayMeetings.forEach(m => { ev += `<div class="cal-event" onclick='openMeetingModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'>📌 ${escapeHtml(String(m.title_mk).substring(0,18))}</div>`; });
-            html += `<div class="cal-day ${isToday ? 'today' : ''}"><div class="cal-day-num">${d}</div>${ev}</div>`;
-        });
-        html += `</div></div>`;
-        return html;
-    }
-
-    function renderStats() {
-        const total = meetings.length;
-        const totalConsents = meetings.reduce((sum, m) => sum + (m.consents?.length || 0), 0);
-        return `<div class="card"><div class="card-header"><span class="card-title">📊 ${t('stats')}</span></div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; text-align:center;">
-                <div><div style="font-size:2rem; font-weight:800;">${total}</div><div>${t('total')}</div></div>
-                <div><div style="font-size:2rem; font-weight:800; color:#166534;">${totalConsents}</div><div>${t('totalConsents')}</div></div>
-            </div>
-        </div>`;
-    }
-
-    function renderMeetings() {
-        if (!meetings.length) return `<div class="card"><div class="empty">${t('noMeetings')}</div></div>`;
-        let html = `<div class="card"><div class="card-header"><span class="card-title">📋 ${t('meetings')}</span></div>`;
-        meetings.forEach(m => {
-            const safeTitle = m.title_mk || 'Без наслов';
-            const safeLocation = m.location || '';
-            const safeAttendees = m.attendees || '';
-            const isConsented = hasUserConsented(m);
-            html += `
-                <div class="meeting-list-item" onclick='openMeetingModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'>
-                    <div><strong class="meeting-title">${escapeHtml(safeTitle)}</strong> <span class="badge open">${lang === 'mk' ? 'Активен' : 'Active'}</span></div>
-                    <div class="meta">📅 ${m.date || ''} | 📍 ${escapeHtml(safeLocation)} | 👥 ${escapeHtml(safeAttendees)}</div>
-                    <div class="action-group" style="display:flex; gap:8px; justify-content:flex-end;" onclick="event.stopPropagation()">
-                        <button class="btn consent-btn ${isConsented ? 'active' : ''}" onclick="toggleConsent(${m.id})">${isConsented ? t('agreed') : t('agree')}</button>
-                        <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>${t('exportReport')}</button>
-                        ${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeetingDirect(${m.id})'>${t('delete')}</button>` : ''}
-                    </div>
-                </div>`;
-        });
-        html += `</div>`;
-        return html;
-    }
-
-    function renderForm() {
-        return `<div class="card"><div class="card-header"><span class="card-title">➕ ${t('addMeeting')}</span></div>
-            <div class="fi"><label>${t('title')} (македонски)*</label><input type="text" id="title_mk"></div>
-            <div class="fi"><label>${t('title')} (англиски)</label><input type="text" id="title_en"></div>
-            <div class="grid-2"><div class="fi"><label>${t('date')}</label><input type="date" id="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="fi"><label>${t('time')}</label><input type="time" id="time" value="10:00"></div></div>
-            <div class="fi"><label>${t('location')}</label><input type="text" id="location"></div>
-            <div class="fi"><label>${t('attendees')}</label><input type="text" id="attendees" placeholder="darko.dimitrov@na.org.mk, marija@na.org.mk, ..."></div>
-            <div class="fi"><label>${t('agenda')} (македонски)</label><textarea id="agenda_mk" rows="3"></textarea></div>
-            <div class="fi"><label>${t('agenda')} (англиски)</label><textarea id="agenda_en" rows="3"></textarea></div>
-            <div class="fi"><label>${t('minutes')} (македонски)</label><textarea id="minutes_mk" rows="4"></textarea></div>
-            <div class="fi"><label>${t('minutes')} (англиски)</label><textarea id="minutes_en" rows="4"></textarea></div>
-            <div class="fi"><label>${t('decisions')} (македонски)</label><textarea id="decisions_mk" rows="3"></textarea></div>
-            <div class="fi"><label>${t('decisions')} (англиски)</label><textarea id="decisions_en" rows="3"></textarea></div>
-            <div class="action-group"><button class="btn btn-primary" onclick="submitNewMeeting()">💾 ${t('save')}</button><button class="btn" onclick="cancelForm()">${t('cancel')}</button></div>
-        </div>`;
-    }
-
     async function submitNewMeeting() {
+        if (!currentUser?.isAdmin) { alert("Само администратор може да креира состаноци!"); return; }
         const title_mk = document.getElementById("title_mk")?.value;
         if (!title_mk) { alert(t('enterTitle')); return; }
         const meetingData = {
@@ -556,63 +271,171 @@
             decisions_en: document.getElementById("decisions_en")?.value || "",
             status: "open",
             consents: [],
+            isArchived: false,
             created_by: currentUser.id,
             created_by_name: currentUser.name
         };
         await saveMeetingToCloud(meetingData);
-        alert("✅ Зачувано!");
+        alert("✅ Состанокот е зачуван!");
         currentTab = "meetings";
         await loadMeetings();
     }
-
+    
+    async function deleteMeeting(id) {
+        if (!currentUser.isAdmin) { alert("Само администратор може да брише состаноци!"); return; }
+        if (confirm("Избриши го состанокот?")) {
+            await deleteMeetingFromCloud(id);
+            await loadMeetings();
+        }
+    }
+    
     function cancelForm() { currentTab = "meetings"; renderApp(); }
-
-    function renderChangePassword() {
-        return `<div class="card"><div class="card-header"><span class="card-title">🔐 ${t('changePassword')}</span></div>
-            <div class="fi"><label>${t('oldPassword')}</label><input type="password" id="oldPassword"></div>
-            <div class="fi"><label>${t('newPassword')}</label><input type="password" id="newPassword"></div>
-            <div class="fi"><label>${t('confirmPassword')}</label><input type="password" id="confirmPassword"></div>
-            <button class="btn btn-primary" onclick="changePassword()">${t('change')}</button>
+    
+    // ============================================
+    // ИЗВЕШТАЈ ВО WORD
+    // ============================================
+    function exportMeetingMinutes(meeting) {
+        const consents = meeting.consents || [];
+        const attendees = meeting.attendees ? meeting.attendees.split(',').map(s => s.trim()) : [];
+        let signaturesHtml = '<h3>' + (lang === 'mk' ? 'Потписи / Согласувања' : 'Signatures / Consents') + '</h3><table border="1" cellpadding="5" style="width:100%; border-collapse:collapse;"><thead><tr bgcolor="#f0f0f0"><th>' + (lang === 'mk' ? 'Име / Е-пошта' : 'Name / Email') + '</th><th>' + (lang === 'mk' ? 'Статус' : 'Status') + '</th><th>' + (lang === 'mk' ? 'Датум' : 'Date') + '</th><tr></thead><tbody>';
+        attendees.forEach(email => {
+            const user = users.find(u => u.email === email);
+            const name = user ? user.name : email;
+            const hasConsented = consents.includes(email);
+            signaturesHtml += `<tr><td>${escapeHtml(name)} (${escapeHtml(email)})</td><td>${hasConsented ? '✓ ' + (lang === 'mk' ? 'СЕ СОГЛАСУВА' : 'AGREES') : '✗ ' + (lang === 'mk' ? 'НЕ СЕ СОГЛАСУВА' : 'DOES NOT AGREE')}</td><td>${hasConsented ? new Date().toLocaleDateString() : ''}</td></tr>`;
+        });
+        signaturesHtml += '</tbody></table>';
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(meeting.title_mk)} - ${lang === 'mk' ? 'Записник' : 'Minutes'}</title><style>body{font-family:Calibri; margin:2rem;} table{border-collapse:collapse; width:100%;} td,th{border:1px solid #999; padding:8px;}</style></head><body><h1>${lang === 'mk' ? 'ЗАПИСНИК ОД СОСТАНОК' : 'MEETING MINUTES'}</h1><h2>${escapeHtml(lang === 'mk' ? meeting.title_mk : (meeting.title_en || meeting.title_mk))}</h2><p><strong>${t('date')}:</strong> ${meeting.date}<br><strong>${t('location')}:</strong> ${escapeHtml(meeting.location)}</p><h3>${t('agenda')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.agenda_mk : (meeting.agenda_en || meeting.agenda_mk)).replace(/\n/g,'<br>')}</p><h3>${t('minutes')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.minutes_mk : (meeting.minutes_en || meeting.minutes_mk)).replace(/\n/g,'<br>')}</p><h3>${t('decisions')}</h3><p>${escapeHtml(lang === 'mk' ? meeting.decisions_mk : (meeting.decisions_en || meeting.decisions_mk)).replace(/\n/g,'<br>')}</p>${signaturesHtml}<footer><p>NA-NAU · ${new Date().toLocaleString()}</p></footer></body></html>`;
+        const blob = new Blob([html], { type: "application/msword" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `Meeting_${(meeting.title_mk || '').replace(/[^a-z0-9]/gi,'_')}_${meeting.date || ''}.doc`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+    
+    // ============================================
+    // РЕНДЕРИРАЊЕ
+    // ============================================
+    function renderMeetings() {
+        const activeMeetings = meetings.filter(m => !m.isArchived);
+        if (!activeMeetings.length) return `<div class="card"><div class="empty">${t('noMeetings')}</div></div>`;
+        let html = `<div class="card"><div class="card-header"><span class="card-title">📋 ${t('meetings')}</span></div>`;
+        activeMeetings.forEach(m => {
+            const isConsented = hasUserConsented(m);
+            const attendeesList = m.attendees ? m.attendees.split(',').map(s => s.trim()) : [];
+            const consents = m.consents || [];
+            let consentHtml = `<div class="consent-list"><strong>📋 ${t('consentList') || 'Согласувања'}:</strong>`;
+            attendeesList.forEach(email => {
+                const user = users.find(u => u.email === email);
+                const name = user ? user.name : email;
+                const hasConsented = consents.includes(email);
+                consentHtml += `<div class="consent-item"><span>${escapeHtml(name)}</span><span class="${hasConsented ? 'consent-yes' : 'consent-no'}">${hasConsented ? '✓ ' + (lang === 'mk' ? 'се согласи' : 'agreed') : '✗ ' + (lang === 'mk' ? 'чека' : 'waiting')}</span></div>`;
+            });
+            consentHtml += `</div>`;
+            html += `
+                <div class="meeting-item">
+                    <div><strong class="meeting-title">${escapeHtml(m.title_mk)}</strong></div>
+                    <div class="meta">📅 ${m.date || ''} | 📍 ${escapeHtml(m.location || '')} | 👥 ${escapeHtml(m.attendees || '')}</div>
+                    ${consentHtml}
+                    <div class="action-group">
+                        <button class="btn consent-btn ${isConsented ? 'active' : ''}" ${isConsented ? 'disabled' : ''} onclick="toggleConsent(${m.id})">${isConsented ? t('agreed') : t('agree')}</button>
+                        <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>${t('exportReport')}</button>
+                        ${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>${t('delete')}</button>` : ''}
+                    </div>
+                </div>`;
+        });
+        html += `</div>`;
+        return html;
+    }
+    
+    function renderArchive() {
+        const archivedMeetings = meetings.filter(m => m.isArchived);
+        if (!archivedMeetings.length) return `<div class="card"><div class="empty">${t('archiveEmpty')}</div></div>`;
+        let html = `<div class="card"><div class="card-header"><span class="card-title">📦 ${t('archive')}</span></div>`;
+        archivedMeetings.forEach(m => {
+            const attendeesList = m.attendees ? m.attendees.split(',').map(s => s.trim()) : [];
+            const consents = m.consents || [];
+            let consentHtml = `<div class="consent-list"><strong>📋 ${t('consentList') || 'Согласувања'}:</strong>`;
+            attendeesList.forEach(email => {
+                const user = users.find(u => u.email === email);
+                const name = user ? user.name : email;
+                const hasConsented = consents.includes(email);
+                consentHtml += `<div class="consent-item"><span>${escapeHtml(name)}</span><span class="${hasConsented ? 'consent-yes' : 'consent-no'}">${hasConsented ? '✓ ' + (lang === 'mk' ? 'се согласи' : 'agreed') : '✗ ' + (lang === 'mk' ? 'не се согласи' : 'not agreed')}</span></div>`;
+            });
+            consentHtml += `</div>`;
+            html += `
+                <div class="meeting-item">
+                    <div><strong class="meeting-title">${escapeHtml(m.title_mk)}</strong></div>
+                    <div class="meta">📅 ${m.date || ''} | 📍 ${escapeHtml(m.location || '')}</div>
+                    <div class="approved-by">✅ ${t('approvedBy')} ${escapeHtml(m.archivedByName || '')} (${m.archivedDate ? new Date(m.archivedDate).toLocaleDateString() : ''})</div>
+                    ${consentHtml}
+                    <div class="action-group">
+                        <button class="btn btn-primary btn-sm" onclick='exportMeetingMinutes(${JSON.stringify(m)})'>${t('exportReport')}</button>
+                        ${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>${t('delete')}</button>` : ''}
+                    </div>
+                </div>`;
+        });
+        html += `</div>`;
+        return html;
+    }
+    
+    function renderForm() {
+        if (!currentUser.isAdmin) return `<div class="card"><div class="empty">Само администратор може да креира состаноци.</div></div>`;
+        return `<div class="card"><div class="card-header"><span class="card-title">➕ ${t('addMeeting')}</span></div>
+            <div class="fi"><label>${t('title')} (македонски)*</label><input type="text" id="title_mk"></div>
+            <div class="fi"><label>${t('title')} (англиски)</label><input type="text" id="title_en"></div>
+            <div class="grid-2"><div class="fi"><label>${t('date')}</label><input type="date" id="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="fi"><label>${t('time')}</label><input type="time" id="time" value="10:00"></div></div>
+            <div class="fi"><label>${t('location')}</label><input type="text" id="location"></div>
+            <div class="fi"><label>${t('attendees')}</label><input type="text" id="attendees" placeholder="darko.dimitrov@na.org.mk, marija@na.org.mk, ..."></div>
+            <div class="fi"><label>${t('agenda')} (македонски)</label><textarea id="agenda_mk" rows="3"></textarea></div>
+            <div class="fi"><label>${t('agenda')} (англиски)</label><textarea id="agenda_en" rows="3"></textarea></div>
+            <div class="fi"><label>${t('minutes')} (македонски)</label><textarea id="minutes_mk" rows="4"></textarea></div>
+            <div class="fi"><label>${t('minutes')} (англиски)</label><textarea id="minutes_en" rows="4"></textarea></div>
+            <div class="fi"><label>${t('decisions')} (македонски)</label><textarea id="decisions_mk" rows="3"></textarea></div>
+            <div class="fi"><label>${t('decisions')} (англиски)</label><textarea id="decisions_en" rows="3"></textarea></div>
+            <div class="action-group"><button class="btn btn-primary" onclick="submitNewMeeting()">💾 ${t('save')}</button><button class="btn" onclick="cancelForm()">${t('cancel')}</button></div>
         </div>`;
     }
-
-    function renderEmployees() {
-        if (!currentUser.isAdmin) return `<div class="card"><div class="empty">Немате права да ги гледате вработените.</div></div>`;
-        return `<div class="card"><div class="card-header"><span class="card-title">👥 ${t('employees')}</span></div>
-            <div class="employee-grid">
-                ${users.map(u => `<div style="background:#f8fafc; border-radius:12px; padding:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                    <div><strong>${escapeHtml(u.name)}</strong><br><small>${escapeHtml(u.position)}</small><br><small>📧 ${escapeHtml(u.email)}</small><br><small>🏛 ${escapeHtml(u.institution || '')}</small><br>${u.isAdmin ? '👑 ' + t('isAdmin') : ''}</div>
-                    <div><button class="btn btn-sm" onclick="resetUserPassword(${u.id})">${t('resetPassword')}</button>
-                    ${u.id !== currentUser.id ? `<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">${t('delete')}</button>` : ''}</div>
-                </div>`).join('')}
+    
+    function renderCalendar() {
+        const monthNames = lang === "mk" ? ["јануари","февруари","март","април","мај","јуни","јули","август","септември","октомври","ноември","декември"] : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const daysInMonth = new Date(calendarYear, calendarMonth+1, 0).getDate();
+        const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+        const start = firstDay === 0 ? 6 : firstDay - 1;
+        let days = [];
+        for (let i=0; i<start; i++) days.push(null);
+        for (let d=1; d<=daysInMonth; d++) days.push(d);
+        while (days.length < 42) days.push(null);
+        let html = `<div class="card"><div class="month-nav"><button class="btn btn-sm" id="prevMonthBtn">◀</button><strong>${monthNames[calendarMonth]} ${calendarYear}</strong><button class="btn btn-sm" id="nextMonthBtn">▶</button></div><div class="calendar-grid">`;
+        ["Пон","Вто","Сре","Чет","Пет","Саб","Нед"].forEach(d => html += `<div style="text-align:center; font-weight:600;">${d}</div>`);
+        const activeMeetings = meetings.filter(m => !m.isArchived);
+        days.forEach(d => {
+            if (d === null) { html += `<div class="cal-day" style="opacity:0.3;"></div>`; return; }
+            const dateStr = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const dayMeetings = activeMeetings.filter(m => m.date === dateStr);
+            let ev = "";
+            dayMeetings.forEach(m => { ev += `<div class="cal-event" onclick="alert('${escapeHtml(m.title_mk)}')">📌 ${escapeHtml(m.title_mk.substring(0,18))}</div>`; });
+            const isToday = new Date().getDate() === d && new Date().getMonth() === calendarMonth && new Date().getFullYear() === calendarYear;
+            html += `<div class="cal-day ${isToday ? 'today' : ''}"><div class="cal-day-num">${d}</div>${ev}</div>`;
+        });
+        html += `</div></div>`;
+        return html;
+    }
+    
+    function renderStats() {
+        const activeCount = meetings.filter(m => !m.isArchived).length;
+        const archivedCount = meetings.filter(m => m.isArchived).length;
+        const totalConsents = meetings.reduce((sum, m) => sum + (m.consents?.length || 0), 0);
+        return `<div class="card"><div class="card-header"><span class="card-title">📊 ${t('stats')}</span></div>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; text-align:center;">
+                <div><div style="font-size:2rem; font-weight:800;">${activeCount}</div><div>Активни</div></div>
+                <div><div style="font-size:2rem; font-weight:800; color:#166534;">${archivedCount}</div><div>Архивирани</div></div>
+                <div><div style="font-size:2rem; font-weight:800; color:#2563eb;">${totalConsents}</div><div>Дадени согласувања</div></div>
             </div>
         </div>`;
     }
-
-    function renderSettings() {
-        if (!currentUser.isAdmin) return `<div class="card"><div class="empty">Немате администраторски права.</div></div>`;
-        return `<div class="card"><div class="card-header"><span class="card-title">⚙️ ${t('settings')} - ${t('addUser')}</span></div>
-            <div style="background:#dbeafe; border-radius:12px; padding:20px; margin-bottom:20px;">
-                <div class="grid-2">
-                    <div class="fi"><label>${t('name')} *</label><input type="text" id="newUserName" placeholder="пр. Петар Петровски"></div>
-                    <div class="fi"><label>${t('position')}</label><input type="text" id="newUserPosition" placeholder="Службеник"></div>
-                    <div class="fi"><label>${t('email')} *</label><input type="email" id="newUserEmail" placeholder="email@na.org.mk"></div>
-                    <div class="fi"><label>${t('institution')}</label><input type="text" id="newUserInstitution" placeholder="пр. НАЕОПМ, МОН"></div>
-                </div>
-                <div style="margin:10px 0;"><label><input type="checkbox" id="newUserIsAdmin"> 👑 ${t('isAdmin')}</label></div>
-                <button class="btn btn-primary" onclick="addNewUser()">➕ ${t('addUser')}</button>
-            </div>
-            <div class="card-title">📋 ${t('employees')}</div>
-            <div class="employee-grid">
-                ${users.map(u => `<div style="background:#f8fafc; border-radius:12px; padding:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
-                    <div><strong>${escapeHtml(u.name)}</strong><br><small>${escapeHtml(u.position)}</small><br><small>📧 ${escapeHtml(u.email)}</small><br><small>🏛 ${escapeHtml(u.institution || '')}</small><br>${u.isAdmin ? '👑 ' + t('isAdmin') : ''}</div>
-                    <div><button class="btn btn-sm" onclick="resetUserPassword(${u.id})">${t('resetPassword')}</button>
-                    ${u.id !== currentUser.id ? `<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">${t('delete')}</button>` : ''}</div>
-                </div>`).join('')}
-            </div>
-        </div>`;
-    }
-
+    
     function renderLogin() {
         return `<div class="login-container">
             <div class="login-header">
@@ -625,22 +448,19 @@
                 </div>
             </div>
             <div id="loginError" class="error-msg" style="display:none;"></div>
-            <div class="input-group"><label>${t('email')}</label><input type="email" id="loginEmail" placeholder="email@na.org.mk" value="darko.dimitrov@na.org.mk"></div>
-            <div class="input-group"><label>${t('password')}</label><input type="password" id="loginPassword" placeholder="********" value="12345"></div>
+            <div class="input-group"><label>${t('email')}</label><input type="email" id="loginEmail" placeholder="email@na.org.mk" autocomplete="off"></div>
+            <div class="input-group"><label>${t('password')}</label><input type="password" id="loginPassword" placeholder="********" autocomplete="off"></div>
             <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">${t('login')}</button>
-            <div class="info-text" style="margin-top:15px; font-size:11px; color:#64748b; text-align:center;">Дефолт лозинка: 12345</div>
         </div>`;
     }
-
+    
     function renderMainApp() {
         const tabs = [
             { id: "meetings", label: t('meetings') },
             { id: "new", label: t('newMeeting') },
             { id: "calendar", label: t('calendar') },
             { id: "stats", label: t('stats') },
-            { id: "employees", label: t('employees') },
-            { id: "settings", label: t('settings') },
-            { id: "profile", label: "🔐 " + t('changePassword') }
+            { id: "archive", label: t('archive') }
         ];
         let tabsHtml = `<div class="tabs">`;
         tabs.forEach(tab => {
@@ -652,12 +472,10 @@
         else if (currentTab === "new") content = renderForm();
         else if (currentTab === "calendar") content = renderCalendar();
         else if (currentTab === "stats") content = renderStats();
-        else if (currentTab === "employees") content = renderEmployees();
-        else if (currentTab === "settings") content = renderSettings();
-        else if (currentTab === "profile") content = renderChangePassword();
+        else if (currentTab === "archive") content = renderArchive();
         return tabsHtml + content;
     }
-
+    
     function renderApp() {
         const root = document.getElementById('appRoot');
         if (!currentUser) {
@@ -693,55 +511,31 @@
                     renderApp();
                 });
             });
-            const prevBtn = document.getElementById("prevMonthBtn");
-            const nextBtn = document.getElementById("nextMonthBtn");
-            if (prevBtn) prevBtn.onclick = () => { calendarMonth--; if(calendarMonth<0){calendarMonth=11;calendarYear--;} renderApp(); };
-            if (nextBtn) nextBtn.onclick = () => { calendarMonth++; if(calendarMonth>11){calendarMonth=0;calendarYear++;} renderApp(); };
+            document.getElementById("prevMonthBtn")?.addEventListener("click", () => { calendarMonth--; if(calendarMonth<0){calendarMonth=11;calendarYear--;} renderApp(); });
+            document.getElementById("nextMonthBtn")?.addEventListener("click", () => { calendarMonth++; if(calendarMonth>11){calendarMonth=0;calendarYear++;} renderApp(); });
         }
     }
-
+    
     function setLanguage(l) { lang = l; renderApp(); }
-
-    // ПОПРАВЕНА escapeHtml ФУНКЦИЈА
-    function escapeHtml(str) { 
-        if (!str) return ''; 
-        if (typeof str !== 'string') str = String(str);
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-
+    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+    
     window.doLogin = async function() {
         const email = document.getElementById('loginEmail').value;
         const pwd = document.getElementById('loginPassword').value;
         const result = await login(email, pwd);
         if (!result.success) {
-            const errDiv = document.getElementById('loginError');
-            errDiv.style.display = 'block';
-            errDiv.innerText = result.error;
-        } else {
-            renderApp();
+            document.getElementById('loginError').style.display = 'block';
+            document.getElementById('loginError').innerText = result.error;
         }
     }
-
+    
     window.toggleConsent = toggleConsent;
-    window.deleteMeetingDirect = deleteMeetingDirect;
-    window.deleteMeetingFromModal = deleteMeetingFromModal;
-    window.saveMeeting = saveMeeting;
+    window.deleteMeeting = deleteMeeting;
     window.submitNewMeeting = submitNewMeeting;
     window.exportMeetingMinutes = exportMeetingMinutes;
-    window.resetUserPassword = resetUserPassword;
     window.cancelForm = cancelForm;
-    window.changePassword = changePassword;
-    window.addNewUser = addNewUser;
-    window.deleteUser = deleteUser;
     window.setLanguage = setLanguage;
-    window.openMeetingModal = openMeetingModal;
-    window.closeModal = closeModal;
-
+    
     async function init() {
         await loadUsers();
         renderApp();
