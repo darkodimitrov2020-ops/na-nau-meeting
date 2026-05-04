@@ -2,7 +2,7 @@
 <html lang="mk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>NA-NAU · Meeting Management</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,7 +40,8 @@
         input, select, textarea { width: 100%; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; }
         textarea { resize: vertical; min-height: 80px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .meeting-item { background: #f8fafc; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; }
+        .meeting-item { background: #f8fafc; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; transition: all 0.2s; cursor: pointer; }
+        .meeting-item:hover { border-color: #2563eb; background: #eff6ff; }
         .meeting-title { font-weight: 700; font-size: 1rem; }
         .meta { font-size: 0.75rem; color: #64748b; margin: 6px 0; display: flex; gap: 12px; flex-wrap: wrap; }
         .action-group { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; flex-wrap: wrap; }
@@ -57,6 +58,7 @@
         .error-msg { background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; margin-bottom: 1rem; text-align: center; }
         .empty { text-align: center; padding: 2rem; color: #64748b; }
         .footer-credit { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.7rem; color: #64748b; border-top: 1px solid #e2e8f0; }
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -65,9 +67,9 @@
 
 <script>
     // ==================== КОНФИГУРАЦИЈА ====================
-    const API_URL = "https://script.google.com/macros/s/AKfycbwYozkQzl7Bkq7jNf2EZK0SFm5IVeDFlC_7bWvD4N89J4PfOjD07nfyQi35BE2ATFc-/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwxTZa-6U7DHGZvvN9rbLDNegXAPuCxyCfIBum7FIKTNUIOsmwrKP8kzw-gYcITsqqu/exec";
     
-    let meetings = [], users = [], currentUser = null, currentTab = "meetings", lang = "mk";
+    let meetings = [], users = [], currentUser = null, currentTab = "meetings", lang = "mk", selectedMeetingForModal = null;
     
     const translations = {
         mk: { meetings: "📋 Состаноци", newMeeting: "➕ Нов состанок", archive: "📦 Архива", employees: "👥 Вработени", settings: "⚙️ Поставки",
@@ -120,7 +122,7 @@
     
     async function createMeeting() {
         const title = document.getElementById("title_mk")?.value;
-        if (!title) { alert(t('enterTitle') || "Внесете наслов!"); return; }
+        if (!title) { alert("Внесете наслов!"); return; }
         const meeting = {
             id: -1, title_mk: title, title_en: document.getElementById("title_en")?.value || "",
             date: document.getElementById("date")?.value, time: document.getElementById("time")?.value || "10:00",
@@ -151,6 +153,43 @@
     }
     function logout() { currentUser = null; renderApp(); }
     
+    // ==================== МОДАЛ ЗА УРЕДУВАЊЕ ====================
+    function openMeetingModal(id) {
+        const meeting = meetings.find(m => m.id === id);
+        if (!meeting) return;
+        selectedMeetingForModal = JSON.parse(JSON.stringify(meeting));
+        renderModal();
+    }
+    function closeModal() { selectedMeetingForModal = null; document.getElementById('modalContainer')?.remove(); renderApp(); }
+    async function saveMeetingFromModal() {
+        if (!selectedMeetingForModal) return;
+        const title_mk = document.getElementById('edit_title_mk')?.value;
+        if (!title_mk) { alert("Внесете наслов!"); return; }
+        selectedMeetingForModal.title_mk = title_mk;
+        selectedMeetingForModal.title_en = document.getElementById('edit_title_en')?.value || '';
+        selectedMeetingForModal.date = document.getElementById('edit_date')?.value;
+        selectedMeetingForModal.time = document.getElementById('edit_time')?.value || '10:00';
+        selectedMeetingForModal.location = document.getElementById('edit_location')?.value || '';
+        selectedMeetingForModal.attendees = document.getElementById('edit_attendees')?.value || '';
+        selectedMeetingForModal.agenda_mk = document.getElementById('edit_agenda_mk')?.value || '';
+        selectedMeetingForModal.agenda_en = document.getElementById('edit_agenda_en')?.value || '';
+        selectedMeetingForModal.minutes_mk = document.getElementById('edit_minutes_mk')?.value || '';
+        selectedMeetingForModal.minutes_en = document.getElementById('edit_minutes_en')?.value || '';
+        selectedMeetingForModal.decisions_mk = document.getElementById('edit_decisions_mk')?.value || '';
+        selectedMeetingForModal.decisions_en = document.getElementById('edit_decisions_en')?.value || '';
+        await saveMeeting(selectedMeetingForModal);
+        closeModal();
+    }
+    function renderModal() {
+        const existing = document.getElementById('modalContainer');
+        if (existing) existing.remove();
+        if (!selectedMeetingForModal) return;
+        const m = selectedMeetingForModal;
+        const canEdit = currentUser.isAdmin || currentUser.id === m.created_by;
+        const modalHtml = `<div id="modalContainer" class="modal" onclick="if(event.target===this) closeModal()"><div style="background:white; border-radius:1rem; max-width:800px; width:90%; max-height:85vh; overflow-y:auto; padding:1.5rem;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:0.5rem; border-bottom:2px solid #eef2f6;"><h3>${canEdit ? '✏️ Уреди состанок' : '📄 Преглед на состанок'}</h3><button class="btn btn-sm" onclick="closeModal()">✖ Затвори</button></div>${canEdit ? `<div class="fi"><label>Наслов (македонски)*</label><input type="text" id="edit_title_mk" value="${escapeHtml(m.title_mk || '')}"></div><div class="fi"><label>Наслов (англиски)</label><input type="text" id="edit_title_en" value="${escapeHtml(m.title_en || '')}"></div><div class="grid-2"><div class="fi"><label>Датум</label><input type="date" id="edit_date" value="${m.date || ''}"></div><div class="fi"><label>Време</label><input type="time" id="edit_time" value="${m.time || '10:00'}"></div></div><div class="fi"><label>Локација</label><input type="text" id="edit_location" value="${escapeHtml(m.location || '')}"></div><div class="fi"><label>Присутни (е-пошти)</label><input type="text" id="edit_attendees" value="${escapeHtml(m.attendees || '')}"></div><div class="fi"><label>Дневен ред (македонски)</label><textarea id="edit_agenda_mk" rows="3">${escapeHtml(m.agenda_mk || '')}</textarea></div><div class="fi"><label>Дневен ред (англиски)</label><textarea id="edit_agenda_en" rows="3">${escapeHtml(m.agenda_en || '')}</textarea></div><div class="fi"><label>Записник (македонски)</label><textarea id="edit_minutes_mk" rows="4">${escapeHtml(m.minutes_mk || '')}</textarea></div><div class="fi"><label>Записник (англиски)</label><textarea id="edit_minutes_en" rows="4">${escapeHtml(m.minutes_en || '')}</textarea></div><div class="fi"><label>Заклучоци (македонски)</label><textarea id="edit_decisions_mk" rows="3">${escapeHtml(m.decisions_mk || '')}</textarea></div><div class="fi"><label>Заклучоци (англиски)</label><textarea id="edit_decisions_en" rows="3">${escapeHtml(m.decisions_en || '')}</textarea></div><div class="action-group" style="margin-top:15px;"><button class="btn btn-primary" onclick="saveMeetingFromModal()">💾 Зачувај</button><button class="btn" onclick="closeModal()">Откажи</button></div></div>` : `<div><strong>Наслов:</strong> ${escapeHtml(m.title_mk)}</div><div class="meta" style="margin-top:10px;">📅 ${m.date} | ⏰ ${m.time} | 📍 ${escapeHtml(m.location)}</div><div><strong>👥 Присутни:</strong> ${escapeHtml(m.attendees || '')}</div><hr><div><strong>📋 Дневен ред:</strong><br>${escapeHtml(m.agenda_mk || '').replace(/\n/g,'<br>')}</div><hr><div><strong>📝 Записник:</strong><br>${escapeHtml(m.minutes_mk || '').replace(/\n/g,'<br>')}</div><hr><div><strong>✅ Заклучоци:</strong><br>${escapeHtml(m.decisions_mk || '').replace(/\n/g,'<br>')}</div>`}</div></div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+    
     // ==================== РЕНДЕРИРАЊЕ ====================
     function renderMeetings() {
         const active = meetings.filter(m => !m.isArchived);
@@ -162,7 +201,7 @@
             let clist = `<div class="consent-list"><strong>📋 Согласувања:</strong>`;
             att.forEach(email => { const user = users.find(u=>u.email===email); const name = user ? user.name : email; const ok = m.consents?.includes(email); clist += `<div class="consent-item"><span>${escapeHtml(name)}</span><span class="${ok ? 'consent-yes' : 'consent-no'}">${ok ? '✓ се согласи' : '✗ чека'}</span></div>`; });
             clist += `</div>`;
-            html += `<div class="meeting-item"><div class="meeting-title">${escapeHtml(m.title_mk)}</div><div class="meta">📅 ${m.date} | 📍 ${escapeHtml(m.location)}</div>${clist}<div class="action-group"><button class="btn consent-btn ${consented ? 'active' : ''}" ${consented ? 'disabled' : ''} onclick="toggleConsent(${m.id})">${consented ? t('agreed') : t('agree')}</button><button class="btn btn-primary btn-sm" onclick='exportWord(${JSON.stringify(m)})'>📄 ${t('export')}</button>${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>🗑️ ${t('delete')}</button>` : ''}</div></div>`;
+            html += `<div class="meeting-item" onclick="openMeetingModal(${m.id})"><div class="meeting-title">${escapeHtml(m.title_mk)}</div><div class="meta">📅 ${m.date} | 📍 ${escapeHtml(m.location)}</div>${clist}<div class="action-group" onclick="event.stopPropagation()"><button class="btn consent-btn ${consented ? 'active' : ''}" ${consented ? 'disabled' : ''} onclick="toggleConsent(${m.id})">${consented ? t('agreed') : t('agree')}</button><button class="btn btn-primary btn-sm" onclick='exportWord(${JSON.stringify(m)})'>📄 ${t('export')}</button>${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>🗑️ ${t('delete')}</button>` : ''}</div></div>`;
         });
         return html + `</div>`;
     }
@@ -176,7 +215,7 @@
             let clist = `<div class="consent-list"><strong>📋 Согласувања:</strong>`;
             att.forEach(email => { const user = users.find(u=>u.email===email); const name = user ? user.name : email; const ok = m.consents?.includes(email); clist += `<div class="consent-item"><span>${escapeHtml(name)}</span><span class="${ok ? 'consent-yes' : 'consent-no'}">${ok ? '✓ се согласи' : '✗ не се согласи'}</span></div>`; });
             clist += `</div>`;
-            html += `<div class="meeting-item"><div class="meeting-title">${escapeHtml(m.title_mk)}</div><div class="meta">📅 ${m.date} | 📍 ${escapeHtml(m.location)}</div><div class="approved-by">✅ Завршен од: ${escapeHtml(m.archivedByName || m.created_by_name)}</div>${clist}<div class="action-group"><button class="btn btn-primary btn-sm" onclick='exportWord(${JSON.stringify(m)})'>📄 ${t('export')}</button>${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>🗑️ ${t('delete')}</button>` : ''}</div></div>`;
+            html += `<div class="meeting-item" onclick="openMeetingModal(${m.id})"><div class="meeting-title">${escapeHtml(m.title_mk)}</div><div class="meta">📅 ${m.date} | 📍 ${escapeHtml(m.location)}</div><div class="approved-by">✅ Завршен од: ${escapeHtml(m.archivedByName || m.created_by_name)}</div>${clist}<div class="action-group" onclick="event.stopPropagation()"><button class="btn btn-primary btn-sm" onclick='exportWord(${JSON.stringify(m)})'>📄 ${t('export')}</button>${currentUser.isAdmin ? `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${m.id})'>🗑️ ${t('delete')}</button>` : ''}</div></div>`;
         });
         return html + `</div>`;
     }
@@ -204,13 +243,14 @@
     
     function renderLogin() { return `<div class="login-container"><div class="login-header"><div class="login-icon">НА</div><div class="login-icon">МОН</div><div class="login-title">NA-NAU</div><div class="login-sub">${t('loginTitle')}</div><div class="lang-switch" style="justify-content:center;"><button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰</button><button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧</button></div></div><div id="loginError" class="error-msg" style="display:none;"></div><div><label>${t('email')}</label><input type="email" id="loginEmail" autocomplete="off"></div><div><label>${t('password')}</label><input type="password" id="loginPassword" autocomplete="off"></div><button class="btn btn-primary" style="width:100%;" onclick="doLogin()">${t('login')}</button></div>`; }
     
-    function renderApp() { const root = document.getElementById('appRoot'); if (!currentUser) { root.innerHTML = renderLogin(); } else { root.innerHTML = `<div class="app"><div class="hdr"><div class="logo-section"><div class="logo-icon">НА</div><div class="logo-text"><strong>НАЕОПМ</strong><br>Скопје</div><div class="logo-icon">МОН</div><div class="logo-text"><strong>Министерство за<br>образование и наука</strong></div><div><div class="hdr-title">NA-NAU <span class="hdr-accent">Meeting</span></div><div class="hdr-sub">${t('appSub') || 'Meeting System'}</div></div></div><div class="user-panel"><div class="lang-switch"><button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰</button><button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧</button></div><div class="user-info">${escapeHtml(currentUser.name)} (${escapeHtml(currentUser.position)})</div><button class="btn-logout" onclick="logout()">${t('logout')}</button></div></div>${renderMain()}<div class="footer-credit">Created by: D. Dimitrov</div></div>`; document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => { currentTab = btn.dataset.tab; renderApp(); })); } }
+    function renderApp() { const root = document.getElementById('appRoot'); if (!currentUser) { root.innerHTML = renderLogin(); } else { root.innerHTML = `<div class="app"><div class="hdr"><div class="logo-section"><div class="logo-icon">НА</div><div class="logo-text"><strong>НАЕОПМ</strong><br>Скопје</div><div class="logo-icon">МОН</div><div class="logo-text"><strong>Министерство за<br>образование и наука</strong></div><div><div class="hdr-title">NA-NAU <span class="hdr-accent">Meeting</span></div><div class="hdr-sub">Meeting System</div></div></div><div class="user-panel"><div class="lang-switch"><button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰</button><button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧</button></div><div class="user-info">${escapeHtml(currentUser.name)} (${escapeHtml(currentUser.position)})</div><button class="btn-logout" onclick="logout()">${t('logout')}</button></div></div>${renderMain()}<div class="footer-credit">Created by: D. Dimitrov</div></div>`; document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => { currentTab = btn.dataset.tab; renderApp(); })); } }
     
     function setLanguage(l) { lang = l; renderApp(); }
     function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
     
     window.doLogin = async function() { const res = await login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); if (!res.success) { const err = document.getElementById('loginError'); err.style.display = 'block'; err.innerText = res.error; } };
     window.toggleConsent = toggleConsent; window.deleteMeeting = deleteMeeting; window.createMeeting = createMeeting; window.exportWord = exportWord; window.cancelForm = cancelForm; window.addUser = addUser; window.deleteUser = deleteUser; window.setLanguage = setLanguage;
+    window.openMeetingModal = openMeetingModal; window.closeModal = closeModal; window.saveMeetingFromModal = saveMeetingFromModal;
     
     (async () => { await loadUsers(); renderApp(); })();
 </script>
