@@ -68,9 +68,18 @@
 
 <script>
     // ==================== КОНФИГУРАЦИЈА ====================
-    const API_URL = "https://script.google.com/macros/s/AKfycbwxTZa-6U7DHGZvvN9rbLDNegXAPuCxyCfIBum7FIKTNUIOsmwrKP8kzw-gYcITsqqu/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzbQ58e6Hcmx-7DuyhOJo592Y3ZeoZimkzRWKZ4jZH1XIWSSUHoxiI71tlniwLrWESH/exec";
     
+    // Чување на корисникот во sessionStorage за да остане најавен при освежување
     let meetings = [], users = [], currentUser = null, currentTab = "meetings", lang = "mk", selectedMeetingForModal = null;
+    
+    // Обиди се да го вчиташ корисникот од сесијата
+    const savedUser = sessionStorage.getItem('na_nau_currentUser');
+    if (savedUser) {
+        try {
+            currentUser = JSON.parse(savedUser);
+        } catch(e) {}
+    }
     
     const translations = {
         mk: { 
@@ -115,7 +124,7 @@
     async function saveUser(u) { await apiPost('saveUser', u); await loadUsers(); }
     async function deleteUserReq(id) { await apiPost('deleteUser', { id: id }); await loadUsers(); }
     
-    // ==================== КЛУЧНА ЛОГИКА ЗА ПРЕМЕСТУВАЊЕ ВО АРХИВА ====================
+    // ==================== ЛОГИКА ЗА ПРЕМЕСТУВАЊЕ ВО АРХИВА ====================
     function hasConsented(m) { return m.consents?.includes(currentUser?.email) || false; }
     function isFullyConsented(m) { 
         const att = (m.attendees || '').split(',').map(s=>s.trim()).filter(s=>s); 
@@ -123,12 +132,9 @@
         return att.every(email => m.consents?.includes(email)); 
     }
     
-    // **ПОПРАВЕНА ФУНКЦИЈА - САМО ПРЕМЕСТУВА, НЕ ДУПЛИРА**
     async function toggleConsent(id) {
-        const meetingIndex = meetings.findIndex(m => m.id === id);
-        if (meetingIndex === -1) return;
-        const meeting = meetings[meetingIndex];
-        if (meeting.isArchived || hasConsented(meeting)) return;
+        const meeting = meetings.find(m => m.id === id);
+        if (!meeting || meeting.isArchived || hasConsented(meeting)) return;
         
         let consents = [...(meeting.consents || [])];
         consents.push(currentUser.email);
@@ -142,9 +148,8 @@
             meeting.archivedDate = new Date().toISOString();
         }
         
-        // **ЗАЧУВАЈ ГО ПРОМЕНЕТИОТ СОСТАНОК (ГИ ЗАМЕНУВА ПОДАТОЦИТЕ, НЕ ДОДАВА НОВ)**
+        // ЗАЧУВАЈ ГО ПРОМЕНЕТИОТ СОСТАНОК (ГИ ЗАМЕНУВА ПОДАТОЦИТЕ, НЕ ДОДАВА НОВ)
         await saveMeeting(meeting);
-        // По зачувувањето, повторно вчитај ги состаноците од сервер
         await loadMeetings();
         renderApp();
     }
@@ -177,13 +182,18 @@
         if (!user) return { success: false, error: "Нема корисник" };
         if (user.password !== pwd) return { success: false, error: "Погрешна лозинка" };
         currentUser = user;
+        sessionStorage.setItem('na_nau_currentUser', JSON.stringify(currentUser));
         await loadMeetings();
         renderApp();
         return { success: true };
     }
-    function logout() { currentUser = null; renderApp(); }
+    function logout() { 
+        currentUser = null; 
+        sessionStorage.removeItem('na_nau_currentUser');
+        renderApp(); 
+    }
     
-    // ==================== ПРОФЕСИОНАЛЕН WORD ИЗВЕШТАЈ (СТИЛ НА ЕВРОПСКА КОМИСИЈА) ====================
+    // ==================== ПРОФЕСИОНАЛЕН WORD ИЗВЕШТАЈ ====================
     function exportWord(meeting) {
         const date = new Date(meeting.date);
         const formattedDate = `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()}`;
@@ -230,70 +240,19 @@
             <meta charset="UTF-8">
             <title>${escapeHtml(meeting.title_mk)} - Minutes</title>
             <style>
-                body {
-                    font-family: 'Calibri', 'Times New Roman', Arial, sans-serif;
-                    margin: 2rem;
-                    line-height: 1.4;
-                    color: #1a1a1a;
-                }
-                .header {
-                    text-align: center;
-                    margin-bottom: 30px;
-                    border-bottom: 2px solid #003399;
-                    padding-bottom: 15px;
-                }
-                .eu-logo {
-                    font-size: 24px;
-                    font-weight: bold;
-                    color: #003399;
-                    letter-spacing: 2px;
-                }
+                body { font-family: 'Calibri', 'Times New Roman', Arial, sans-serif; margin: 2rem; line-height: 1.4; color: #1a1a1a; }
+                .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #003399; padding-bottom: 15px; }
+                .eu-logo { font-size: 24px; font-weight: bold; color: #003399; letter-spacing: 2px; }
                 .eu-logo span { color: #ffcc00; }
                 .title { font-size: 28px; font-weight: bold; color: #003399; margin: 20px 0 5px; }
                 .subtitle { font-size: 14px; color: #666; }
-                .info-box {
-                    background: #f5f5f5;
-                    padding: 15px;
-                    border-radius: 8px;
-                    margin: 20px 0;
-                    border-left: 4px solid #003399;
-                }
-                .section-title {
-                    background-color: #003399;
-                    color: white;
-                    padding: 8px 15px;
-                    border-radius: 5px;
-                    margin: 20px 0 15px;
-                    font-size: 16px;
-                }
+                .info-box { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #003399; }
+                .section-title { background-color: #003399; color: white; padding: 8px 15px; border-radius: 5px; margin: 20px 0 15px; font-size: 16px; }
                 .content { margin: 10px 0 20px 20px; }
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin: 20px 0;
-                }
-                th, td {
-                    border: 1px solid #ddd;
-                    padding: 10px;
-                }
-                th {
-                    background-color: #003399;
-                    color: white;
-                }
-                .footer {
-                    margin-top: 40px;
-                    text-align: center;
-                    font-size: 10px;
-                    color: #999;
-                    border-top: 1px solid #ddd;
-                    padding-top: 15px;
-                }
-                .signature-line {
-                    margin-top: 30px;
-                    display: flex;
-                    justify-content: space-between;
-                }
-                hr { margin: 15px 0; }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                th, td { border: 1px solid #ddd; padding: 10px; }
+                th { background-color: #003399; color: white; }
+                .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #ddd; padding-top: 15px; }
             </style>
         </head>
         <body>
@@ -302,28 +261,21 @@
                 <div class="title">MINUTES OF MEETING</div>
                 <div class="subtitle">${lang === 'mk' ? 'Записник од состанок' : 'Meeting minutes'}</div>
             </div>
-            
             <h2 style="color:#003399;">${escapeHtml(meeting.title_mk)}</h2>
-            
             <div class="info-box">
                 <strong>📅 ${t('date')}:</strong> ${meeting.date}<br>
                 <strong>⏰ ${t('time')}:</strong> ${meeting.time}<br>
                 <strong>📍 ${t('location')}:</strong> ${escapeHtml(meeting.location)}<br>
                 <strong>👥 ${t('attendees')}:</strong> ${escapeHtml(meeting.attendees)}
             </div>
-            
             <div class="section-title">1. ${t('agenda')}</div>
             <div class="content">${escapeHtml(meeting.agenda_mk || '').replace(/\n/g,'<br>')}</div>
-            
             <div class="section-title">2. ${t('minutes')}</div>
             <div class="content">${escapeHtml(meeting.minutes_mk || '').replace(/\n/g,'<br>')}</div>
-            
             <div class="section-title">3. ${t('decisions')}</div>
             <div class="content">${escapeHtml(meeting.decisions_mk || '').replace(/\n/g,'<br>')}</div>
-            
             <div class="section-title">4. ${lang === 'mk' ? 'Потписи на присутните' : 'Signatures of attendees'}</div>
             ${signaturesHtml}
-            
             <div class="footer">
                 <p>This document was generated automatically by NA-NAU Meeting Management System.</p>
                 <p>${formattedDate} | ${escapeHtml(currentUser?.name || 'NA-NAU')}</p>
@@ -551,7 +503,7 @@
                     </div>
                 </div>
                 ${renderMain()}
-                <div class="footer-credit">Created by: D. Dimitrov · European Union style report</div>
+                <div class="footer-credit">Created by: D. Dimitrov · Data stored in Google Sheets</div>
             </div>`; 
             document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => { currentTab = btn.dataset.tab; renderApp(); })); 
         } 
