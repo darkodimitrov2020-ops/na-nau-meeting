@@ -30,7 +30,6 @@
         .card-title { font-size: 1rem; font-weight: 700; }
         .btn { padding: 6px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: all 0.2s; }
         .btn-primary { background: #003399; border-color: #003399; color: white; }
-        .btn-primary:hover { background: #002266; }
         .btn-danger { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
         .btn-sm { padding: 4px 10px; font-size: 0.7rem; }
         .consent-btn { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; cursor: pointer; }
@@ -40,18 +39,16 @@
         input, select, textarea { width: 100%; padding: 10px 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; }
         textarea { resize: vertical; min-height: 80px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .meeting-item { background: #f8fafc; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; transition: all 0.2s; cursor: pointer; }
+        .meeting-item { background: #f8fafc; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s; }
         .meeting-item:hover { border-color: #003399; background: #eff6ff; }
         .meeting-title { font-weight: 700; font-size: 1rem; color: #003399; }
         .meta { font-size: 0.75rem; color: #64748b; margin: 6px 0; display: flex; gap: 12px; flex-wrap: wrap; }
         .action-group { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; flex-wrap: wrap; }
         .consent-list { margin-top: 8px; background: #f8fafc; border-radius: 8px; padding: 8px; font-size: 0.7rem; border-left: 3px solid #003399; }
         .consent-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e2e8f0; }
-        .consent-item:last-child { border-bottom: none; }
         .consent-yes { color: #166534; font-weight: 600; }
         .consent-no { color: #991b1b; }
         .approved-by { font-size: 0.7rem; color: #166534; margin-top: 5px; padding-top: 5px; border-top: 1px dashed #bbf7d0; }
-        .employee-grid { display: grid; gap: 10px; }
         .login-container { max-width: 450px; margin: 3rem auto; background: white; border-radius: 1.5rem; padding: 2rem; border-top: 5px solid #003399; }
         .login-header { text-align: center; margin-bottom: 2rem; }
         .login-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #003399, #0066cc); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: white; margin: 0 5px; }
@@ -60,7 +57,8 @@
         .footer-credit { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.7rem; color: #64748b; border-top: 1px solid #e2e8f0; }
         .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .modal-content { background: white; border-radius: 1rem; max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 1.5rem; }
-        .notification { position: fixed; top: 20px; right: 20px; background: #003399; color: white; padding: 12px 20px; border-radius: 8px; z-index: 1000; animation: slideIn 0.3s ease; }
+        .notification { position: fixed; top: 20px; right: 20px; background: #003399; color: white; padding: 12px 20px; border-radius: 8px; z-index: 1000; cursor: pointer; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .notification:hover { background: #002266; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
@@ -70,15 +68,16 @@
 
 <script>
     // ==================== КОНФИГУРАЦИЈА ====================
-    const API_URL = "https://script.google.com/macros/s/AKfycbw6OONDELL2OPTrnWKTbjcy8kUeQZP4AqV1NTDIOfrEyerxhOc-8Y_e2UNTqHjf2w4x/exec";
+    // ⚠️ ЗАМЕНЕТЕ ГО ОВОЈ URL СО ВАШИОТ ОД APPS SCRIPT!
+    const API_URL = "https://script.google.com/macros/s/AKfycbzrPZajY6EsV16WcK8j33tI1SWQphHR5ah1Z8lrdiOUjmSQ2sDDSTU0speSe4Uc7YDD/exec";
     
     let meetings = [], users = [], currentUser = null, currentTab = "meetings", lang = "mk", selectedMeetingForModal = null;
+    let notificationCheckInterval = null;
     let lastMeetingCount = 0;
+    let lastConsentCount = 0;
     
     const savedUser = sessionStorage.getItem('na_nau_currentUser');
-    if (savedUser) {
-        try { currentUser = JSON.parse(savedUser); } catch(e) {}
-    }
+    if (savedUser) { try { currentUser = JSON.parse(savedUser); } catch(e) {} }
     
     const translations = {
         mk: { 
@@ -88,7 +87,7 @@
             agenda: "Дневен ред", minutes: "Записник", decisions: "Заклучоци", save: "Зачувај", cancel: "Откажи",
             agree: "📝 Се согласувам", agreed: "✓ Се согласив", export: "📄 Извештај", delete: "🗑️ Избриши",
             noActive: "Нема активни состаноци.", noArchive: "Нема архивирани состаноци.", addUser: "Додади вработен", name: "Име", position: "Функција", isAdmin: "Администратор",
-            notificationNewMeeting: "Нов состанок е додаден"
+            notificationNewMeeting: "📅 Нов состанок", notificationConsent: "✅ Ново согласување"
         },
         en: { 
             meetings: "📋 Meetings", newMeeting: "➕ New Meeting", archive: "📦 Archive", employees: "👥 Employees", settings: "⚙️ Settings",
@@ -97,7 +96,7 @@
             agenda: "Agenda", minutes: "Minutes", decisions: "Decisions", save: "Save", cancel: "Cancel",
             agree: "📝 I agree", agreed: "✓ I agreed", export: "📄 Report", delete: "🗑️ Delete",
             noActive: "No active meetings.", noArchive: "No archived meetings.", addUser: "Add employee", name: "Name", position: "Position", isAdmin: "Administrator",
-            notificationNewMeeting: "New meeting has been added"
+            notificationNewMeeting: "📅 New meeting", notificationConsent: "✅ New consent"
         }
     };
     function t(key) { return translations[lang][key] || key; }
@@ -109,10 +108,33 @@
     async function loadMeetings() { 
         const data = await apiGet('getMeetings'); 
         if (data.success && data.meetings) { 
+            const oldCount = meetings.length;
+            const oldConsentCount = meetings.reduce((s,m)=> s + (m.consents?.length||0), 0);
             meetings = data.meetings.map(m => ({ ...m, consents: m.consents || [], isArchived: m.isArchived === true })); 
+            const newCount = meetings.length;
+            const newConsentCount = meetings.reduce((s,m)=> s + (m.consents?.length||0), 0);
+            
+            if (currentUser && newCount > oldCount) {
+                showNotification(`${t('notificationNewMeeting')}!`, meetings.find(m => m.id === Math.max(...meetings.map(mm=>mm.id))));
+            } else if (currentUser && newConsentCount > oldConsentCount && currentUser) {
+                showNotification(`${t('notificationConsent')}!`);
+            }
         } else { meetings = []; } 
         if (currentUser) renderApp(); 
-        checkForNewMeetings();
+    }
+    
+    function showNotification(message, meeting = null) {
+        const notif = document.createElement('div');
+        notif.className = 'notification';
+        notif.innerHTML = `🔔 ${message}`;
+        if (meeting) {
+            notif.style.cursor = 'pointer';
+            notif.onclick = () => { openMeetingModal(meeting.id); notif.remove(); };
+        } else {
+            setTimeout(() => notif.remove(), 5000);
+        }
+        document.body.appendChild(notif);
+        setTimeout(() => { if (notif.parentNode) notif.remove(); }, 8000);
     }
     
     async function loadUsers() { 
@@ -126,16 +148,15 @@
     async function saveUser(u) { await apiPost('saveUser', u); await loadUsers(); }
     async function deleteUserReq(id) { await apiPost('deleteUser', { id: id }); await loadUsers(); }
     
-    // ==================== ЛОГИКА ЗА СОГЛАСУВАЊЕ И АРХИВИРАЊЕ ====================
+    // ==================== ЛОГИКА ЗА СОГЛАСУВАЊЕ ====================
     function hasUserConsented(meeting) {
         if (!currentUser) return false;
-        const consents = meeting.consents || [];
-        return consents.includes(currentUser.email);
+        return (meeting.consents || []).includes(currentUser.email);
     }
     
     function isFullyConsented(meeting) {
         const attendees = (meeting.attendees || '').split(',').map(s=>s.trim()).filter(s=>s);
-        if (attendees.length === 0) return true;
+        if (attendees.length === 0) return false;
         const consents = meeting.consents || [];
         return attendees.every(email => consents.includes(email));
     }
@@ -161,26 +182,6 @@
         renderApp();
     }
     
-    // ==================== НОТИФИКАЦИИ ====================
-    function showNotification(message) {
-        const notif = document.createElement('div');
-        notif.className = 'notification';
-        notif.innerHTML = `🔔 ${message}`;
-        document.body.appendChild(notif);
-        setTimeout(() => { notif.remove(); }, 5000);
-    }
-    
-    function checkForNewMeetings() {
-        if (lastMeetingCount === 0) {
-            lastMeetingCount = meetings.length;
-            return;
-        }
-        if (meetings.length > lastMeetingCount && currentUser) {
-            showNotification(`${t('notificationNewMeeting')}!`);
-        }
-        lastMeetingCount = meetings.length;
-    }
-    
     // ==================== ДРУГИ ФУНКЦИИ ====================
     async function createMeeting() {
         const title = document.getElementById("title_mk")?.value;
@@ -197,7 +198,6 @@
         await saveMeeting(meeting);
         currentTab = "meetings";
         renderApp();
-        showNotification(`${t('notificationNewMeeting')}: ${title}`);
     }
     
     async function deleteMeeting(id) { if (currentUser.isAdmin && confirm("Избриши?")) await deleteMeetingReq(id); else alert("Само администратор!"); }
@@ -215,11 +215,7 @@
         renderApp();
         return { success: true };
     }
-    function logout() { 
-        currentUser = null; 
-        sessionStorage.removeItem('na_nau_currentUser');
-        renderApp(); 
-    }
+    function logout() { currentUser = null; sessionStorage.removeItem('na_nau_currentUser'); renderApp(); }
     
     // ==================== WORD ИЗВЕШТАЈ ====================
     function exportWord(meeting) {
