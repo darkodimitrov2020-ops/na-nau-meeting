@@ -11,9 +11,12 @@
         
         .hdr { background: white; border-radius: 1rem; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; }
         .logo-section { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-        .flag-icon { font-size: 28px; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #003399, #0066cc); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; color: white; }
+        .logo-text { font-size: 0.7rem; font-weight: 500; color: #334155; }
+        .logo-text strong { color: #003399; }
         .hdr-title { font-size: 1.3rem; font-weight: 700; color: #003399; }
         .hdr-accent { color: #ffcc00; }
+        
         .user-panel { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .user-info { background: #e6f0ff; padding: 6px 14px; border-radius: 30px; font-size: 0.8rem; font-weight: 500; color: #003399; }
         .btn-logout { background: #fee2e2; border: none; padding: 6px 14px; border-radius: 30px; cursor: pointer; }
@@ -67,16 +70,10 @@
 <script>
     // ==================== КОНФИГУРАЦИЈА ====================
     // ⚠️ ЗАМЕНЕТЕ ГО ОВОЈ URL СО ВАШИОТ ОД APPS SCRIPT!
-    const API_URL = "https://script.google.com/macros/s/AKfycbxgN9RZg8O9ZOjz7YCI1mZKGmnEzP0tDi0hYfK8kgnKpco9AoLvy22cRYDjBdp9wqDQ/exec";
-    
-    // ЛОКАЛНИ КОРИСНИЦИ (синхронизирани со вашиот Google Sheet)
-    const LOCAL_USERS = [
-        { id: 1, name: "Дарко Димитров", position: "Раководител на сектор", email: "darko.dimitrov@na.org.mk", password: "12345", isAdmin: true },
-        { id: 5, name: "Ана Митровска", position: "Директор", email: "ana.mihajlov@na.org.mk", password: "abcd", isAdmin: false }
-    ];
+    const API_URL = "https://script.google.com/macros/s/AKfycbx5Q8xJHO3qbT5Ebc47iX2sN3K0oUzIeY2MemUO62hF0X9DbeUqUIQw3t9K438yeQrZ/exec";
     
     let meetings = [];
-    let users = LOCAL_USERS;
+    let users = [];
     let currentUser = null;
     let currentTab = "meetings";
     let lang = "mk";
@@ -84,23 +81,23 @@
     
     const translations = {
         mk: {
-            meetings: "📋 Состаноци", newMeeting: "➕ Нов состанок", archive: "📦 Архива", notifications: "🔔 Нотификации", employees: "👥 Вработени",
+            meetings: "Состаноци", newMeeting: "Нов состанок", archive: "Архива", notifications: "Нотификации", employees: "Вработени",
             loginTitle: "Најава", email: "Е-пошта", password: "Лозинка", login: "Најави се", logout: "Одјави се",
             title: "Наслов", date: "Датум", time: "Време", location: "Локација", attendees: "Присутни",
             agenda: "Дневен ред", minutes: "Записник", decisions: "Заклучоци", save: "Зачувај", cancel: "Откажи",
-            edit: "✏️ Уреди", delete: "🗑️ Избриши", archiveBtn: "📦 Архивирај", export: "📄 Извештај", print: "🖨️ Печати",
+            edit: "Уреди", delete: "Избриши", archiveBtn: "Архивирај", export: "Извештај", print: "Печати",
             noActive: "Нема активни состаноци.", noArchive: "Нема архивирани состаноци.", noNotifications: "Нема нотификации.",
-            addUser: "Додади вработен", name: "Име", position: "Функција", isAdmin: "Администратор",
+            addUser: "Додади вработен", name: "Име", position: "Функција", isAdmin: "Администратор", passwordLabel: "Лозинка",
             archivedBy: "Архивиран од", archived: "Архивиран", loading: "Се вчитуваат податоци..."
         },
         en: {
-            meetings: "📋 Meetings", newMeeting: "➕ New Meeting", archive: "📦 Archive", notifications: "🔔 Notifications", employees: "👥 Employees",
+            meetings: "Meetings", newMeeting: "New Meeting", archive: "Archive", notifications: "Notifications", employees: "Employees",
             loginTitle: "Login", email: "Email", password: "Password", login: "Login", logout: "Logout",
             title: "Title", date: "Date", time: "Time", location: "Location", attendees: "Attendees",
             agenda: "Agenda", minutes: "Minutes", decisions: "Decisions", save: "Save", cancel: "Cancel",
-            edit: "✏️ Edit", delete: "🗑️ Delete", archiveBtn: "📦 Archive", export: "📄 Report", print: "🖨️ Print",
+            edit: "Edit", delete: "Delete", archiveBtn: "Archive", export: "Report", print: "Print",
             noActive: "No active meetings.", noArchive: "No archived meetings.", noNotifications: "No notifications.",
-            addUser: "Add employee", name: "Name", position: "Position", isAdmin: "Administrator",
+            addUser: "Add employee", name: "Name", position: "Position", isAdmin: "Administrator", passwordLabel: "Password",
             archivedBy: "Archived by", archived: "Archived", loading: "Loading data..."
         }
     };
@@ -119,7 +116,7 @@
         });
     }
     
-    // ==================== API ПОВИЦИ (само за состаноци) ====================
+    // ==================== API ПОВИЦИ ====================
     async function apiGet(action) {
         try {
             const res = await fetch(API_URL + "?action=" + action + "&_=" + Date.now());
@@ -175,6 +172,40 @@
         if (currentUser) renderApp();
     }
     
+    async function loadUsers() {
+        const data = await apiGet('getUsers');
+        if (data.success && data.users && data.users.length > 0) {
+            users = data.users;
+        } else {
+            users = [];
+        }
+        if (!users.length) {
+            // Default users if none exist
+            users = [
+                { id: 1, name: "Дарко Димитров", position: "Раководител на сектор", email: "darko.dimitrov@na.org.mk", password: "12345", isAdmin: true },
+                { id: 2, name: "Ана Митровска", position: "Директор", email: "ana.mihajlov@na.org.mk", password: "abcd", isAdmin: false }
+            ];
+            // Save default users to cloud
+            for (var i = 0; i < users.length; i++) {
+                await apiPost('saveUser', users[i]);
+            }
+        }
+    }
+    
+    async function saveUserToCloud(user) {
+        if (user.id && user.id !== -1) {
+            await apiPost('updateUser', user);
+        } else {
+            await apiPost('saveUser', user);
+        }
+        await loadUsers();
+    }
+    
+    async function deleteUserFromCloud(id) {
+        await apiPost('deleteUser', { id: id });
+        await loadUsers();
+    }
+    
     async function saveMeetingToCloud(m) {
         await apiPost('saveMeeting', m);
         await loadMeetings();
@@ -185,12 +216,13 @@
         await loadMeetings();
     }
     
-    // ==================== АВТЕНТИКАЦИЈА (само локална) ====================
-    function login(email, password) {
-        for (var i = 0; i < LOCAL_USERS.length; i++) {
-            if (LOCAL_USERS[i].email === email && LOCAL_USERS[i].password === password) {
-                currentUser = LOCAL_USERS[i];
-                loadMeetings();
+    // ==================== АВТЕНТИКАЦИЈА ====================
+    async function login(email, password) {
+        await loadUsers();
+        for (var i = 0; i < users.length; i++) {
+            if (users[i].email === email && users[i].password === password) {
+                currentUser = users[i];
+                await loadMeetings();
                 renderApp();
                 return { success: true };
             }
@@ -201,6 +233,75 @@
     function logout() {
         currentUser = null;
         renderApp();
+    }
+    
+    // ==================== УПРАВУВАЊЕ СО КОРИСНИЦИ (САМО АДМИН) ====================
+    async function addUser() {
+        if (!currentUser.isAdmin) return;
+        var nameEl = document.getElementById("newName");
+        var emailEl = document.getElementById("newEmail");
+        var posEl = document.getElementById("newPos");
+        var passEl = document.getElementById("newPassword");
+        var isAdminEl = document.getElementById("newIsAdmin");
+        
+        var name = nameEl ? nameEl.value.trim() : "";
+        var email = emailEl ? emailEl.value.trim() : "";
+        var position = posEl ? posEl.value.trim() : "";
+        var password = passEl ? passEl.value : "12345";
+        var isAdmin = isAdminEl ? isAdminEl.checked : false;
+        
+        if (!name || !email) { alert("Внесете име и е-пошта!"); return; }
+        
+        // Провери дали веќе постои
+        for (var i = 0; i < users.length; i++) {
+            if (users[i].email === email) {
+                alert("Веќе постои корисник со оваа е-пошта!");
+                return;
+            }
+        }
+        
+        var newId = -1;
+        await saveUserToCloud({ id: -1, name: name, email: email, position: position || "Службеник", password: password, isAdmin: isAdmin });
+        
+        if (nameEl) nameEl.value = '';
+        if (emailEl) emailEl.value = '';
+        if (posEl) posEl.value = '';
+        if (passEl) passEl.value = '';
+        if (isAdminEl) isAdminEl.checked = false;
+        
+        await loadUsers();
+        renderApp();
+        alert("✅ Вработениот е додаден!");
+    }
+    
+    async function deleteUser(userId) {
+        if (!currentUser.isAdmin) return;
+        if (userId === currentUser.id) { alert("Не можете да се избришете себеси!"); return; }
+        if (confirm("Избриши го вработениот?")) {
+            await deleteUserFromCloud(userId);
+            await loadUsers();
+            renderApp();
+            alert("✅ Вработениот е избришан!");
+        }
+    }
+    
+    async function resetUserPassword(userId) {
+        if (!currentUser.isAdmin) return;
+        var newPassword = prompt("Внесете нова лозинка за корисникот:");
+        if (!newPassword || newPassword.length < 3) {
+            alert("Лозинката мора да има барем 3 карактери!");
+            return;
+        }
+        for (var i = 0; i < users.length; i++) {
+            if (users[i].id === userId) {
+                users[i].password = newPassword;
+                await saveUserToCloud(users[i]);
+                break;
+            }
+        }
+        await loadUsers();
+        renderApp();
+        alert("✅ Лозинката е променета!");
     }
     
     // ==================== СОСТАНОЦИ ====================
@@ -335,18 +436,6 @@
         editMeetingId = null;
         currentTab = "meetings";
         renderApp();
-    }
-    
-    // ==================== КОРИСНИЦИ (САМО ЗА ПРИКАЗ) ====================
-    function renderEmployees() {
-        if (!currentUser.isAdmin) return '<div class="card"><div class="empty">⛔ ' + (lang === 'mk' ? 'Само администратор.' : 'Admin only.') + '</div></div>';
-        var html = '<div class="card"><div class="card-header"><span class="card-title">👥 ' + t('employees') + '</span></div>';
-        for (var i = 0; i < LOCAL_USERS.length; i++) {
-            var u = LOCAL_USERS[i];
-            html += '<div class="employee-card"><div><strong>' + escapeHtml(u.name) + '</strong><br><small>' + escapeHtml(u.position) + '</small><br><small>📧 ' + escapeHtml(u.email) + '</small><br>' + (u.isAdmin ? '👑 ' + t('isAdmin') : '') + '</div></div>';
-        }
-        html += '</div>';
-        return html;
     }
     
     // ==================== ИЗВЕШТАЈ ====================
@@ -519,7 +608,7 @@
             '<div class="grid-2"><div><label>' + t('date') + '</label><input type="date" id="date" value="' + dateValue + '"></div>' +
             '<div><label>' + t('time') + '</label><input type="time" id="time" value="' + timeValue + '"></div></div>' +
             '<div><label>' + t('location') + '</label><input id="location" value="' + escapeHtml(locationValue) + '"></div>' +
-            '<div><label>' + t('attendees') + '</label><input id="attendees" value="' + escapeHtml(attendeesValue) + '" placeholder="darko.dimitrov@na.org.mk, ana.mihajlov@na.org.mk"></div>' +
+            '<div><label>' + t('attendees') + '</label><input id="attendees" value="' + escapeHtml(attendeesValue) + '" placeholder="email@na.org.mk"></div>' +
             '<div><label>' + t('agenda') + ' (македонски)</label><textarea id="agenda_mk" rows="3">' + escapeHtml(agendaMkValue) + '</textarea></div>' +
             '<div><label>' + t('agenda') + ' (англиски)</label><textarea id="agenda_en" rows="3">' + escapeHtml(agendaEnValue) + '</textarea></div>' +
             '<div><label>' + t('minutes') + ' (македонски)</label><textarea id="minutes_mk" rows="4">' + escapeHtml(minutesMkValue) + '</textarea></div>' +
@@ -528,6 +617,28 @@
             '<div><label>' + t('decisions') + ' (англиски)</label><textarea id="decisions_en" rows="3">' + escapeHtml(decisionsEnValue) + '</textarea></div>' +
             '<div class="action-group"><button class="btn btn-primary" onclick="' + (isEdit ? 'updateMeeting()' : 'createMeeting()') + '">💾 ' + t('save') + '</button>' +
             '<button class="btn" onclick="cancelForm()">' + t('cancel') + '</button></div></div>';
+    }
+    
+    function renderEmployees() {
+        if (!currentUser.isAdmin) return '<div class="card"><div class="empty">⛔ ' + (lang === 'mk' ? 'Само администратор.' : 'Admin only.') + '</div></div>';
+        var html = '<div class="card"><div class="card-header"><span class="card-title">👥 ' + t('employees') + '</span></div>';
+        for (var i = 0; i < users.length; i++) {
+            var u = users[i];
+            html += '<div class="employee-card"><div><strong>' + escapeHtml(u.name) + '</strong><br><small>' + escapeHtml(u.position) + '</small><br><small>📧 ' + escapeHtml(u.email) + '</small><br>' + (u.isAdmin ? '👑 ' + t('isAdmin') : '') + '</div>' +
+                '<div>' + 
+                (u.id !== currentUser.id ? '<button class="btn btn-warning btn-sm" onclick="resetUserPassword(' + u.id + ')" style="margin-right:5px;">🔑 Промени лозинка</button>' : '') +
+                (u.id !== currentUser.id ? '<button class="btn btn-danger btn-sm" onclick="deleteUser(' + u.id + ')">🗑️ Избриши</button>' : '') +
+                '</div></div>';
+        }
+        html += '</div>' +
+            '<div class="card"><div class="card-header"><span class="card-title">⚙️ ' + t('addUser') + '</span></div>' +
+            '<div class="grid-2"><div><label>' + t('name') + '</label><input id="newName" placeholder="Име"></div>' +
+            '<div><label>Email</label><input id="newEmail" placeholder="email@na.org.mk"></div></div>' +
+            '<div><label>' + t('position') + '</label><input id="newPos" placeholder="Функција"></div>' +
+            '<div><label>' + t('passwordLabel') + '</label><input id="newPassword" placeholder="Лозинка" value="12345"></div>' +
+            '<div style="margin:10px 0;"><label><input type="checkbox" id="newIsAdmin"> 👑 ' + t('isAdmin') + '</label></div>' +
+            '<button class="btn btn-primary" onclick="addUser()">➕ ' + t('addUser') + '</button></div>';
+        return html;
     }
     
     function renderMain() {
@@ -566,8 +677,7 @@
             '<div id="loginError" class="error-msg" style="display:none;"></div>' +
             '<div><label>' + t('email') + '</label><input type="email" id="loginEmail" autocomplete="off" placeholder="email@na.org.mk"></div>' +
             '<div><label>' + t('password') + '</label><input type="password" id="loginPassword" autocomplete="off" placeholder="********"></div>' +
-            '<button class="btn btn-primary" style="width:100%;" onclick="doLogin()">' + t('login') + '</button>' +
-            '<div style="text-align:center;margin-top:15px;font-size:12px;">' + (lang === 'mk' ? 'Корисници: darko.dimitrov@na.org.mk / 12345 | ana.mihajlov@na.org.mk / abcd' : 'Users: darko.dimitrov@na.org.mk / 12345 | ana.mihajlov@na.org.mk / abcd') + '</div></div>';
+            '<button class="btn btn-primary" style="width:100%;" onclick="doLogin()">' + t('login') + '</button></div>';
     }
     
     function renderApp() {
@@ -575,7 +685,9 @@
         if (!currentUser) {
             root.innerHTML = renderLogin();
         } else {
-            root.innerHTML = '<div class="app"><div class="hdr"><div class="logo-section"><span class="flag-icon">🇪🇺</span><span class="flag-icon">🇲🇰</span>' +
+            root.innerHTML = '<div class="app"><div class="hdr"><div class="logo-section">' +
+                '<div class="logo-icon">НА</div><div class="logo-text"><strong>НАЕОПМ</strong><br>Скопје</div>' +
+                '<div class="logo-icon">МОН</div><div class="logo-text"><strong>Министерство за<br>образование и наука</strong></div>' +
                 '<div><div class="hdr-title">NA-NAU <span class="hdr-accent">Meeting Management</span></div></div></div>' +
                 '<div class="user-panel"><div class="lang-switch">' +
                 '<button class="lang-btn ' + (lang === 'mk' ? 'active' : '') + '" onclick="setLanguage(\'mk\')">🇲🇰</button>' +
@@ -600,11 +712,11 @@
     }
     
     window.viewMeeting = viewMeeting;
-    window.doLogin = function() {
+    window.doLogin = async function() {
         var emailEl = document.getElementById('loginEmail');
         var pwdEl = document.getElementById('loginPassword');
         if (!emailEl || !pwdEl) return;
-        var result = login(emailEl.value, pwdEl.value);
+        var result = await login(emailEl.value, pwdEl.value);
         if (!result.success) {
             var errDiv = document.getElementById('loginError');
             if (errDiv) {
@@ -621,6 +733,9 @@
     window.exportWord = exportWord;
     window.printMeeting = printMeeting;
     window.cancelForm = cancelForm;
+    window.addUser = addUser;
+    window.deleteUser = deleteUser;
+    window.resetUserPassword = resetUserPassword;
     window.setLanguage = setLanguage;
     
     loadMeetings();
