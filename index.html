@@ -24,10 +24,11 @@
         .lang-btn { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; }
         .lang-btn.active { background: #003399; color: white; border-color: #003399; }
         
-        .tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; border-bottom: 2px solid #cbd5e1; padding-bottom: 4px; }
-        .tab { padding: 8px 20px; border-radius: 30px; background: transparent; border: none; color: #64748b; font-weight: 600; cursor: pointer; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; border-bottom: 2px solid #cbd5e1; padding-bottom: 4px; position: relative; }
+        .tab { padding: 8px 20px; border-radius: 30px; background: transparent; border: none; color: #64748b; font-weight: 600; cursor: pointer; position: relative; }
         .tab:hover { background: #eef2f6; }
         .tab.active { background: #003399; color: white; }
+        .notification-dot { position: absolute; top: -5px; right: 5px; width: 12px; height: 12px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; }
         
         .card { background: white; border-radius: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 1rem; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid #eef2f6; flex-wrap: wrap; gap: 10px; }
@@ -39,9 +40,9 @@
         .btn-warning { background: #fef3c7; border-color: #fde68a; color: #92400e; }
         .btn-sm { padding: 4px 10px; font-size: 0.7rem; }
         
-        .meeting-item { background: #f8fafc; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .meeting-item { background: #f8fafc; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; transition: all 0.2s; cursor: pointer; }
         .meeting-item:hover { border-color: #003399; background: #eff6ff; }
-        .meeting-title { font-weight: 700; font-size: 1rem; color: #003399; cursor: pointer; }
+        .meeting-title { font-weight: 700; font-size: 1rem; color: #003399; }
         .meta { font-size: 0.75rem; color: #64748b; margin: 6px 0; display: flex; gap: 12px; flex-wrap: wrap; }
         .action-group { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         
@@ -61,6 +62,16 @@
         .footer-credit { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.7rem; color: #64748b; border-top: 1px solid #e2e8f0; }
         .employee-card { background: #f8fafc; border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .archived-badge { background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; }
+        .add-user-section { background: #dbeafe; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 1rem; }
+        .cal-day { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; min-height: 90px; padding: 8px; cursor: pointer; }
+        .cal-day.today { border-color: #003399; background: #dbeafe; }
+        .cal-day-num { font-size: 0.8rem; font-weight: 700; margin-bottom: 5px; }
+        .cal-event { font-size: 0.65rem; background: white; border-radius: 6px; padding: 2px 5px; margin-top: 3px; cursor: pointer; border-left: 3px solid #003399; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .cal-day-header { font-size: 0.7rem; font-weight: 600; text-align: center; padding: 5px; color: #64748b; }
+        
         @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -70,7 +81,7 @@
 <script>
     // ==================== КОНФИГУРАЦИЈА ====================
     // ⚠️ ЗАМЕНЕТЕ ГО ОВОЈ URL СО ВАШИОТ ОД APPS SCRIPT!
-    const API_URL = "https://script.google.com/macros/s/AKfycbx5Q8xJHO3qbT5Ebc47iX2sN3K0oUzIeY2MemUO62hF0X9DbeUqUIQw3t9K438yeQrZ/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbysDg4k_EILqNDZvsysvm_gVn2jHCCtwDstCA6--dKlGJ_hvkKYAwkcH8Xcy_W8Ho7d/exec";
     
     let meetings = [];
     let users = [];
@@ -78,69 +89,100 @@
     let currentTab = "meetings";
     let lang = "mk";
     let editMeetingId = null;
+    let calendarYear = new Date().getFullYear();
+    let calendarMonth = new Date().getMonth();
+    let unreadNotifications = false;
+    let beepSound = null;
+    
+    try {
+        beepSound = new Audio('data:audio/wav;base64,U3RlYWx0aCBzb3VuZA==');
+    } catch(e) { beepSound = null; }
+    
+    function playNotificationSound() {
+        if (beepSound) beepSound.play().catch(function(e) {});
+    }
+    
+    function checkUnreadNotifications() {
+        for (var i = 0; i < meetings.length; i++) {
+            var m = meetings[i];
+            if (m.notifications && m.notifications.length) {
+                for (var j = 0; j < m.notifications.length; j++) {
+                    if (m.notifications[j].read !== true) {
+                        unreadNotifications = true;
+                        return true;
+                    }
+                }
+            }
+        }
+        unreadNotifications = false;
+        return false;
+    }
+    
+    function markNotificationsAsRead() {
+        for (var i = 0; i < meetings.length; i++) {
+            var m = meetings[i];
+            if (m.notifications && m.notifications.length) {
+                for (var j = 0; j < m.notifications.length; j++) {
+                    m.notifications[j].read = true;
+                }
+            }
+        }
+        unreadNotifications = false;
+        saveAllMeetingsToCloud();
+        renderApp();
+    }
+    
+    function addNotification(meeting, message) {
+        if (!meeting.notifications) meeting.notifications = [];
+        meeting.notifications.unshift({ message: message, date: new Date().toISOString(), read: false });
+        unreadNotifications = true;
+        playNotificationSound();
+    }
     
     const translations = {
-        mk: {
-            meetings: "Состаноци", newMeeting: "Нов состанок", archive: "Архива", notifications: "Нотификации", employees: "Вработени",
+        mk: { 
+            meetings: "Состаноци", newMeeting: "Нов состанок", archive: "Архива", notifications: "Нотификации", employees: "Вработени", calendar: "Календар",
             loginTitle: "Најава", email: "Е-пошта", password: "Лозинка", login: "Најави се", logout: "Одјави се",
             title: "Наслов", date: "Датум", time: "Време", location: "Локација", attendees: "Присутни",
             agenda: "Дневен ред", minutes: "Записник", decisions: "Заклучоци", save: "Зачувај", cancel: "Откажи",
             edit: "Уреди", delete: "Избриши", archiveBtn: "Архивирај", export: "Извештај", print: "Печати",
             noActive: "Нема активни состаноци.", noArchive: "Нема архивирани состаноци.", noNotifications: "Нема нотификации.",
-            addUser: "Додади вработен", name: "Име", position: "Функција", isAdmin: "Администратор", passwordLabel: "Лозинка",
-            archivedBy: "Архивиран од", archived: "Архивиран", loading: "Се вчитуваат податоци..."
+            archivedBy: "Архивиран од", archived: "Архивиран", addUser: "Додади вработен", name: "Име", position: "Функција", isAdmin: "Администратор", password: "Лозинка"
         },
-        en: {
-            meetings: "Meetings", newMeeting: "New Meeting", archive: "Archive", notifications: "Notifications", employees: "Employees",
+        en: { 
+            meetings: "Meetings", newMeeting: "New Meeting", archive: "Archive", notifications: "Notifications", employees: "Employees", calendar: "Calendar",
             loginTitle: "Login", email: "Email", password: "Password", login: "Login", logout: "Logout",
             title: "Title", date: "Date", time: "Time", location: "Location", attendees: "Attendees",
             agenda: "Agenda", minutes: "Minutes", decisions: "Decisions", save: "Save", cancel: "Cancel",
             edit: "Edit", delete: "Delete", archiveBtn: "Archive", export: "Report", print: "Print",
             noActive: "No active meetings.", noArchive: "No archived meetings.", noNotifications: "No notifications.",
-            addUser: "Add employee", name: "Name", position: "Position", isAdmin: "Administrator", passwordLabel: "Password",
-            archivedBy: "Archived by", archived: "Archived", loading: "Loading data..."
+            archivedBy: "Archived by", archived: "Archived", addUser: "Add employee", name: "Name", position: "Position", isAdmin: "Administrator", password: "Password"
         }
     };
     
-    function t(key) {
-        return translations[lang][key] || key;
-    }
-    
-    function escapeHtml(str) {
-        if (!str) return '';
-        return String(str).replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
+    function t(key) { return translations[lang][key] || key; }
+    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
     
     // ==================== API ПОВИЦИ ====================
     async function apiGet(action) {
         try {
             const res = await fetch(API_URL + "?action=" + action + "&_=" + Date.now());
             return await res.json();
-        } catch(e) {
-            return { success: false, error: e.message };
-        }
+        } catch(e) { return { success: false, error: e.message }; }
     }
     
     async function apiPost(action, data) {
         try {
             await fetch(API_URL + "?action=" + action, {
-                method: "POST",
-                mode: "no-cors",
+                method: "POST", mode: "no-cors",
                 body: JSON.stringify(data),
                 headers: { "Content-Type": "application/json" }
             });
             return { success: true };
-        } catch(e) {
-            return { success: false };
-        }
+        } catch(e) { return { success: false }; }
     }
     
-    async function loadMeetings() {
+    async function loadMeetingsFromCloud() {
         const data = await apiGet('getMeetings');
         if (data.success && data.meetings) {
             meetings = data.meetings.map(function(m) {
@@ -158,34 +200,39 @@
                     minutes_en: m.minutes_en || '',
                     decisions_mk: m.decisions_mk || '',
                     decisions_en: m.decisions_en || '',
-                    status: m.status || 'active',
                     isArchived: m.isArchived === true,
+                    notifications: m.notifications || [],
                     created_by: m.created_by || 1,
                     created_by_name: m.created_by_name || 'Admin',
-                    notifications: m.notifications || [],
                     archivedByName: m.archivedByName || ''
                 };
             });
         } else {
             meetings = [];
         }
+        checkUnreadNotifications();
         if (currentUser) renderApp();
     }
     
-    async function loadUsers() {
+    async function saveMeetingToCloud(m) {
+        await apiPost('saveMeeting', m);
+        await loadMeetingsFromCloud();
+    }
+    
+    async function deleteMeetingFromCloud(id) {
+        await apiPost('deleteMeeting', { id: id });
+        await loadMeetingsFromCloud();
+    }
+    
+    async function loadUsersFromCloud() {
         const data = await apiGet('getUsers');
         if (data.success && data.users && data.users.length > 0) {
             users = data.users;
         } else {
-            users = [];
-        }
-        if (!users.length) {
-            // Default users if none exist
             users = [
                 { id: 1, name: "Дарко Димитров", position: "Раководител на сектор", email: "darko.dimitrov@na.org.mk", password: "12345", isAdmin: true },
                 { id: 2, name: "Ана Митровска", position: "Директор", email: "ana.mihajlov@na.org.mk", password: "abcd", isAdmin: false }
             ];
-            // Save default users to cloud
             for (var i = 0; i < users.length; i++) {
                 await apiPost('saveUser', users[i]);
             }
@@ -198,100 +245,57 @@
         } else {
             await apiPost('saveUser', user);
         }
-        await loadUsers();
+        await loadUsersFromCloud();
     }
     
     async function deleteUserFromCloud(id) {
         await apiPost('deleteUser', { id: id });
-        await loadUsers();
+        await loadUsersFromCloud();
     }
     
-    async function saveMeetingToCloud(m) {
-        await apiPost('saveMeeting', m);
-        await loadMeetings();
-    }
-    
-    async function deleteMeetingFromCloud(id) {
-        await apiPost('deleteMeeting', { id: id });
-        await loadMeetings();
-    }
-    
-    // ==================== АВТЕНТИКАЦИЈА ====================
-    async function login(email, password) {
-        await loadUsers();
-        for (var i = 0; i < users.length; i++) {
-            if (users[i].email === email && users[i].password === password) {
-                currentUser = users[i];
-                await loadMeetings();
-                renderApp();
-                return { success: true };
-            }
+    function saveAllMeetingsToCloud() {
+        for (var i = 0; i < meetings.length; i++) {
+            apiPost('saveMeeting', meetings[i]);
         }
-        return { success: false, error: "Погрешна е-пошта или лозинка" };
     }
     
-    function logout() {
-        currentUser = null;
-        renderApp();
-    }
-    
-    // ==================== УПРАВУВАЊЕ СО КОРИСНИЦИ (САМО АДМИН) ====================
+    // ==================== ФУНКЦИИ ЗА КОРИСНИЦИ ====================
     async function addUser() {
         if (!currentUser.isAdmin) return;
-        var nameEl = document.getElementById("newName");
-        var emailEl = document.getElementById("newEmail");
-        var posEl = document.getElementById("newPos");
-        var passEl = document.getElementById("newPassword");
-        var isAdminEl = document.getElementById("newIsAdmin");
-        
-        var name = nameEl ? nameEl.value.trim() : "";
-        var email = emailEl ? emailEl.value.trim() : "";
-        var position = posEl ? posEl.value.trim() : "";
-        var password = passEl ? passEl.value : "12345";
-        var isAdmin = isAdminEl ? isAdminEl.checked : false;
+        var name = document.getElementById("newName")?.value.trim();
+        var email = document.getElementById("newEmail")?.value.trim();
+        var position = document.getElementById("newPos")?.value.trim();
+        var password = document.getElementById("newPassword")?.value;
+        var isAdmin = document.getElementById("newIsAdmin")?.checked;
         
         if (!name || !email) { alert("Внесете име и е-пошта!"); return; }
-        
-        // Провери дали веќе постои
         for (var i = 0; i < users.length; i++) {
-            if (users[i].email === email) {
-                alert("Веќе постои корисник со оваа е-пошта!");
-                return;
-            }
+            if (users[i].email === email) { alert("Веќе постои корисник!"); return; }
         }
-        
-        var newId = -1;
-        await saveUserToCloud({ id: -1, name: name, email: email, position: position || "Службеник", password: password, isAdmin: isAdmin });
-        
-        if (nameEl) nameEl.value = '';
-        if (emailEl) emailEl.value = '';
-        if (posEl) posEl.value = '';
-        if (passEl) passEl.value = '';
-        if (isAdminEl) isAdminEl.checked = false;
-        
-        await loadUsers();
+        await saveUserToCloud({ id: -1, name: name, email: email, position: position || "Службеник", password: password || "12345", isAdmin: isAdmin || false });
+        document.getElementById("newName").value = '';
+        document.getElementById("newEmail").value = '';
+        document.getElementById("newPos").value = '';
+        document.getElementById("newPassword").value = '12345';
+        document.getElementById("newIsAdmin").checked = false;
         renderApp();
-        alert("✅ Вработениот е додаден!");
+        alert("✅ Додаден!");
     }
     
     async function deleteUser(userId) {
         if (!currentUser.isAdmin) return;
         if (userId === currentUser.id) { alert("Не можете да се избришете себеси!"); return; }
-        if (confirm("Избриши го вработениот?")) {
+        if (confirm("Избриши?")) {
             await deleteUserFromCloud(userId);
-            await loadUsers();
             renderApp();
-            alert("✅ Вработениот е избришан!");
+            alert("✅ Избришан!");
         }
     }
     
     async function resetUserPassword(userId) {
         if (!currentUser.isAdmin) return;
-        var newPassword = prompt("Внесете нова лозинка за корисникот:");
-        if (!newPassword || newPassword.length < 3) {
-            alert("Лозинката мора да има барем 3 карактери!");
-            return;
-        }
+        var newPassword = prompt("Внесете нова лозинка:");
+        if (!newPassword || newPassword.length < 3) { alert("Лозинката мора да има барем 3 карактери!"); return; }
         for (var i = 0; i < users.length; i++) {
             if (users[i].id === userId) {
                 users[i].password = newPassword;
@@ -299,37 +303,23 @@
                 break;
             }
         }
-        await loadUsers();
         renderApp();
         alert("✅ Лозинката е променета!");
     }
     
-    // ==================== СОСТАНОЦИ ====================
+    // ==================== ФУНКЦИИ ЗА СОСТАНОЦИ ====================
     async function createMeeting() {
-        var titleEl = document.getElementById("title_mk");
-        if (!titleEl) return;
-        var title = titleEl.value;
+        const title = document.getElementById("title_mk")?.value;
         if (!title) { alert("Внесете наслов!"); return; }
-        
-        var newMeeting = {
-            id: -1,
-            title_mk: title,
-            title_en: document.getElementById("title_en") ? document.getElementById("title_en").value : "",
-            date: document.getElementById("date") ? document.getElementById("date").value : "",
-            time: document.getElementById("time") ? document.getElementById("time").value : "10:00",
-            location: document.getElementById("location") ? document.getElementById("location").value : "",
-            attendees: document.getElementById("attendees") ? document.getElementById("attendees").value : "",
-            agenda_mk: document.getElementById("agenda_mk") ? document.getElementById("agenda_mk").value : "",
-            agenda_en: document.getElementById("agenda_en") ? document.getElementById("agenda_en").value : "",
-            minutes_mk: document.getElementById("minutes_mk") ? document.getElementById("minutes_mk").value : "",
-            minutes_en: document.getElementById("minutes_en") ? document.getElementById("minutes_en").value : "",
-            decisions_mk: document.getElementById("decisions_mk") ? document.getElementById("decisions_mk").value : "",
-            decisions_en: document.getElementById("decisions_en") ? document.getElementById("decisions_en").value : "",
-            status: "active",
-            isArchived: false,
-            notifications: [{ message: currentUser.name + " го создаде состанокот", date: new Date().toISOString() }],
-            created_by: currentUser.id,
-            created_by_name: currentUser.name
+        const newMeeting = {
+            id: -1, title_mk: title, title_en: document.getElementById("title_en")?.value || "",
+            date: document.getElementById("date")?.value, time: document.getElementById("time")?.value || "10:00",
+            location: document.getElementById("location")?.value || "", attendees: document.getElementById("attendees")?.value || "",
+            agenda_mk: document.getElementById("agenda_mk")?.value || "", agenda_en: document.getElementById("agenda_en")?.value || "",
+            minutes_mk: document.getElementById("minutes_mk")?.value || "", minutes_en: document.getElementById("minutes_en")?.value || "",
+            decisions_mk: document.getElementById("decisions_mk")?.value || "", decisions_en: document.getElementById("decisions_en")?.value || "",
+            isArchived: false, notifications: [{ message: currentUser.name + " го создаде состанокот", date: new Date().toISOString(), read: false }],
+            created_by: currentUser.id, created_by_name: currentUser.name
         };
         await saveMeetingToCloud(newMeeting);
         currentTab = "meetings";
@@ -342,50 +332,33 @@
         currentTab = "new";
         renderApp();
         setTimeout(function() {
-            var fields = ["title_mk", "title_en", "date", "time", "location", "attendees", "agenda_mk", "agenda_en", "minutes_mk", "minutes_en", "decisions_mk", "decisions_en"];
-            for (var i = 0; i < fields.length; i++) {
-                var el = document.getElementById(fields[i]);
-                if (el) el.value = meeting[fields[i]] || '';
-            }
+            document.getElementById("title_mk").value = meeting.title_mk || '';
+            document.getElementById("title_en").value = meeting.title_en || '';
+            document.getElementById("date").value = meeting.date || '';
+            document.getElementById("time").value = meeting.time || '10:00';
+            document.getElementById("location").value = meeting.location || '';
+            document.getElementById("attendees").value = meeting.attendees || '';
+            document.getElementById("agenda_mk").value = meeting.agenda_mk || '';
+            document.getElementById("agenda_en").value = meeting.agenda_en || '';
+            document.getElementById("minutes_mk").value = meeting.minutes_mk || '';
+            document.getElementById("minutes_en").value = meeting.minutes_en || '';
+            document.getElementById("decisions_mk").value = meeting.decisions_mk || '';
+            document.getElementById("decisions_en").value = meeting.decisions_en || '';
         }, 50);
     }
     
     async function updateMeeting() {
-        var titleEl = document.getElementById("title_mk");
-        if (!titleEl) return;
-        var title = titleEl.value;
+        const title = document.getElementById("title_mk")?.value;
         if (!title) { alert("Внесете наслов!"); return; }
-        
-        var existing = null;
-        for (var i = 0; i < meetings.length; i++) {
-            if (meetings[i].id === editMeetingId) {
-                existing = meetings[i];
-                break;
-            }
-        }
-        
-        var notifications = existing ? (existing.notifications || []) : [];
-        notifications.push({ message: currentUser.name + " го уреди состанокот", date: new Date().toISOString() });
-        
-        var updatedMeeting = {
-            id: editMeetingId,
-            title_mk: title,
-            title_en: document.getElementById("title_en") ? document.getElementById("title_en").value : "",
-            date: document.getElementById("date") ? document.getElementById("date").value : "",
-            time: document.getElementById("time") ? document.getElementById("time").value : "10:00",
-            location: document.getElementById("location") ? document.getElementById("location").value : "",
-            attendees: document.getElementById("attendees") ? document.getElementById("attendees").value : "",
-            agenda_mk: document.getElementById("agenda_mk") ? document.getElementById("agenda_mk").value : "",
-            agenda_en: document.getElementById("agenda_en") ? document.getElementById("agenda_en").value : "",
-            minutes_mk: document.getElementById("minutes_mk") ? document.getElementById("minutes_mk").value : "",
-            minutes_en: document.getElementById("minutes_en") ? document.getElementById("minutes_en").value : "",
-            decisions_mk: document.getElementById("decisions_mk") ? document.getElementById("decisions_mk").value : "",
-            decisions_en: document.getElementById("decisions_en") ? document.getElementById("decisions_en").value : "",
-            status: "active",
-            isArchived: existing ? existing.isArchived : false,
-            notifications: notifications,
-            created_by: existing ? existing.created_by : currentUser.id,
-            created_by_name: existing ? existing.created_by_name : currentUser.name
+        const existing = meetings.find(m => m.id === editMeetingId);
+        const updatedMeeting = {
+            ...existing, title_mk: title, title_en: document.getElementById("title_en")?.value || "",
+            date: document.getElementById("date")?.value, time: document.getElementById("time")?.value || "10:00",
+            location: document.getElementById("location")?.value || "", attendees: document.getElementById("attendees")?.value || "",
+            agenda_mk: document.getElementById("agenda_mk")?.value || "", agenda_en: document.getElementById("agenda_en")?.value || "",
+            minutes_mk: document.getElementById("minutes_mk")?.value || "", minutes_en: document.getElementById("minutes_en")?.value || "",
+            decisions_mk: document.getElementById("decisions_mk")?.value || "", decisions_en: document.getElementById("decisions_en")?.value || "",
+            notifications: [...(existing?.notifications || []), { message: currentUser.name + " го уреди состанокот", date: new Date().toISOString(), read: false }]
         };
         await saveMeetingToCloud(updatedMeeting);
         currentTab = "meetings";
@@ -395,30 +368,9 @@
     
     async function archiveMeeting(meeting) {
         if (!currentUser.isAdmin) { alert("Само администратор може да архивира!"); return; }
-        var notifications = meeting.notifications || [];
-        notifications.push({ message: currentUser.name + " го архивира состанокот", date: new Date().toISOString() });
-        var updatedMeeting = {
-            id: meeting.id,
-            title_mk: meeting.title_mk,
-            title_en: meeting.title_en,
-            date: meeting.date,
-            time: meeting.time,
-            location: meeting.location,
-            attendees: meeting.attendees,
-            agenda_mk: meeting.agenda_mk,
-            agenda_en: meeting.agenda_en,
-            minutes_mk: meeting.minutes_mk,
-            minutes_en: meeting.minutes_en,
-            decisions_mk: meeting.decisions_mk,
-            decisions_en: meeting.decisions_en,
-            status: "active",
-            isArchived: true,
-            archivedBy: currentUser.email,
-            archivedByName: currentUser.name,
-            archivedDate: new Date().toISOString(),
-            notifications: notifications,
-            created_by: meeting.created_by,
-            created_by_name: meeting.created_by_name
+        const updatedMeeting = {
+            ...meeting, isArchived: true, archivedByName: currentUser.name, archivedDate: new Date().toISOString(),
+            notifications: [...(meeting.notifications || []), { message: currentUser.name + " го архивира состанокот", date: new Date().toISOString(), read: false }]
         };
         await saveMeetingToCloud(updatedMeeting);
         renderApp();
@@ -426,127 +378,143 @@
     
     async function deleteMeeting(meeting) {
         if (!currentUser.isAdmin) { alert("Само администратор може да брише!"); return; }
-        if (confirm("Избриши го состанокот?")) {
-            await deleteMeetingFromCloud(meeting.id);
+        if (confirm("Избриши?")) { await deleteMeetingFromCloud(meeting.id); }
+    }
+    
+    function cancelForm() { editMeetingId = null; currentTab = "meetings"; renderApp(); }
+    
+    // ==================== АВТЕНТИКАЦИЈА ====================
+    async function login(email, password) {
+        await loadUsersFromCloud();
+        for (var i = 0; i < users.length; i++) {
+            if (users[i].email === email && users[i].password === password) {
+                currentUser = users[i];
+                await loadMeetingsFromCloud();
+                renderApp();
+                return { success: true };
+            }
+        }
+        return { success: false, error: "Погрешна е-пошта или лозинка" };
+    }
+    
+    function logout() { currentUser = null; renderApp(); }
+    
+    // ==================== КАЛЕНДАР ====================
+    function renderCalendar() {
+        const monthNames = lang === "mk" ? ["јануари","февруари","март","април","мај","јуни","јули","август","септември","октомври","ноември","декември"] : ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        const weekDays = lang === "mk" ? ["Пон","Вто","Сре","Чет","Пет","Саб","Нед"] : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+        const daysInMonth = new Date(calendarYear, calendarMonth+1, 0).getDate();
+        const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+        const start = firstDay === 0 ? 6 : firstDay - 1;
+        let days = [];
+        for (var i = 0; i < start; i++) days.push(null);
+        for (var d = 1; d <= daysInMonth; d++) days.push(d);
+        while (days.length < 42) days.push(null);
+        
+        let html = `<div class="card"><div class="month-nav"><button class="btn btn-sm" id="prevMonthBtn">◀</button><strong>${monthNames[calendarMonth]} ${calendarYear}</strong><button class="btn btn-sm" id="nextMonthBtn">▶</button></div><div class="calendar-grid">`;
+        for (var i = 0; i < weekDays.length; i++) {
+            html += `<div class="cal-day-header">${weekDays[i]}</div>`;
+        }
+        const today = new Date();
+        for (var i = 0; i < days.length; i++) {
+            var d = days[i];
+            if (d === null) {
+                html += `<div class="cal-day" style="opacity:0.3;"></div>`;
+                continue;
+            }
+            const dateStr = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const isToday = today.getDate() === d && today.getMonth() === calendarMonth && today.getFullYear() === calendarYear;
+            const dayMeetings = meetings.filter(function(m) { return !m.isArchived && m.date === dateStr; });
+            let events = "";
+            for (var j = 0; j < dayMeetings.length; j++) {
+                var m = dayMeetings[j];
+                events += `<div class="cal-event" onclick="viewMeeting(${m.id})">📌 ${escapeHtml(m.title_mk.substring(0,18))}</div>`;
+            }
+            html += `<div class="cal-day ${isToday ? 'today' : ''}" onclick="openDatePicker('${dateStr}')"><div class="cal-day-num">${d}</div>${events}</div>`;
+        }
+        html += `</div></div>`;
+        return html;
+    }
+    
+    function openDatePicker(date) {
+        var createNew = confirm("Нема состаноци за овој датум. Дали сакате да креирате нов состанок за " + date + "?");
+        if (createNew) {
+            document.getElementById("date").value = date;
+            currentTab = "new";
             renderApp();
         }
     }
     
-    function cancelForm() {
-        editMeetingId = null;
-        currentTab = "meetings";
-        renderApp();
-    }
-    
     // ==================== ИЗВЕШТАЈ ====================
     function exportWord(meeting) {
-        var date = new Date(meeting.date);
-        var formattedDate = date.getDate() + "." + (date.getMonth()+1) + "." + date.getFullYear();
-        var htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + escapeHtml(meeting.title_mk) + ' - Report</title><style>body{font-family:Calibri; margin:2rem;} .header{text-align:center;border-bottom:2px solid #003399;} .eu-logo{font-size:24px;font-weight:bold;color:#003399;}</style></head><body>' +
-            '<div class="header"><div class="eu-logo">🇪🇺 NA-NAU 🇲🇰</div><h1>MEETING REPORT</h1></div>' +
-            '<h2>' + escapeHtml(meeting.title_mk) + '</h2>' +
-            '<p><strong>Date:</strong> ' + meeting.date + '<br>' +
-            '<strong>Time:</strong> ' + meeting.time + '<br>' +
-            '<strong>Location:</strong> ' + escapeHtml(meeting.location) + '<br>' +
-            '<strong>Attendees:</strong> ' + escapeHtml(meeting.attendees) + '</p>' +
-            '<h3>Agenda</h3><p>' + escapeHtml(meeting.agenda_mk || '').replace(/\n/g,'<br>') + '</p>' +
-            '<h3>Minutes</h3><p>' + escapeHtml(meeting.minutes_mk || '').replace(/\n/g,'<br>') + '</p>' +
-            '<h3>Decisions</h3><p>' + escapeHtml(meeting.decisions_mk || '').replace(/\n/g,'<br>') + '</p>' +
-            '<footer><p>Generated by NA-NAU · ' + formattedDate + '</p></footer>' +
-            '</body></html>';
-        var blob = new Blob([htmlContent], { type: "application/msword" });
-        var a = document.createElement("a");
+        const date = new Date(meeting.date);
+        const formattedDate = `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()}`;
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(meeting.title_mk)} - Report</title><style>body{font-family:Calibri; margin:2rem;} .header{text-align:center;border-bottom:2px solid #003399;} .eu-logo{font-size:24px;font-weight:bold;color:#003399;}</style></head><body><div class="header"><div class="eu-logo">🇪🇺 NA-NAU 🇲🇰</div><h1>MEETING REPORT</h1></div><h2>${escapeHtml(meeting.title_mk)}</h2><p><strong>Date:</strong> ${meeting.date}<br><strong>Time:</strong> ${meeting.time}<br><strong>Location:</strong> ${escapeHtml(meeting.location)}<br><strong>Attendees:</strong> ${escapeHtml(meeting.attendees)}</p><h3>Agenda</h3><p>${escapeHtml(meeting.agenda_mk || '').replace(/\n/g,'<br>')}</p><h3>Minutes</h3><p>${escapeHtml(meeting.minutes_mk || '').replace(/\n/g,'<br>')}</p><h3>Decisions</h3><p>${escapeHtml(meeting.decisions_mk || '').replace(/\n/g,'<br>')}</p><footer><p>Generated by NA-NAU · ${formattedDate}</p></footer></body></html>`;
+        const blob = new Blob([html], { type: "application/msword" });
+        const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = "Meeting_" + (meeting.title_mk || '').replace(/[^a-z0-9]/gi,'_') + ".doc";
+        a.download = `Meeting_${(meeting.title_mk || '').replace(/[^a-z0-9]/gi,'_')}.doc`;
         a.click();
         URL.revokeObjectURL(a.href);
     }
     
     function printMeeting(meeting) {
-        var printWindow = window.open('', '_blank');
-        var date = new Date(meeting.date);
-        var formattedDate = date.getDate() + "." + (date.getMonth()+1) + "." + date.getFullYear();
-        printWindow.document.write(
-            '<html><head><title>' + escapeHtml(meeting.title_mk) + ' - Report</title>' +
-            '<style>body{font-family:Calibri; margin:2rem;} .header{text-align:center;border-bottom:2px solid #003399;} .eu-logo{font-size:24px;font-weight:bold;color:#003399;}</style></head>' +
-            '<body><div class="header"><div class="eu-logo">🇪🇺 NA-NAU 🇲🇰</div><h1>MEETING REPORT</h1></div>' +
-            '<h2>' + escapeHtml(meeting.title_mk) + '</h2>' +
-            '<p><strong>Date:</strong> ' + meeting.date + '<br>' +
-            '<strong>Time:</strong> ' + meeting.time + '<br>' +
-            '<strong>Location:</strong> ' + escapeHtml(meeting.location) + '<br>' +
-            '<strong>Attendees:</strong> ' + escapeHtml(meeting.attendees) + '</p>' +
-            '<h3>Agenda</h3><p>' + escapeHtml(meeting.agenda_mk || '').replace(/\n/g,'<br>') + '</p>' +
-            '<h3>Minutes</h3><p>' + escapeHtml(meeting.minutes_mk || '').replace(/\n/g,'<br>') + '</p>' +
-            '<h3>Decisions</h3><p>' + escapeHtml(meeting.decisions_mk || '').replace(/\n/g,'<br>') + '</p>' +
-            '<footer><p>Generated by NA-NAU · ' + formattedDate + '</p></footer>' +
-            '</body></html>'
-        );
+        const printWindow = window.open('', '_blank');
+        const date = new Date(meeting.date);
+        const formattedDate = `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()}`;
+        printWindow.document.write(`<html><head><title>${escapeHtml(meeting.title_mk)} - Report</title><style>body{font-family:Calibri; margin:2rem;} .header{text-align:center;border-bottom:2px solid #003399;} .eu-logo{font-size:24px;font-weight:bold;color:#003399;}</style></head><body><div class="header"><div class="eu-logo">🇪🇺 NA-NAU 🇲🇰</div><h1>MEETING REPORT</h1></div><h2>${escapeHtml(meeting.title_mk)}</h2><p><strong>Date:</strong> ${meeting.date}<br><strong>Time:</strong> ${meeting.time}<br><strong>Location:</strong> ${escapeHtml(meeting.location)}<br><strong>Attendees:</strong> ${escapeHtml(meeting.attendees)}</p><h3>Agenda</h3><p>${escapeHtml(meeting.agenda_mk || '').replace(/\n/g,'<br>')}</p><h3>Minutes</h3><p>${escapeHtml(meeting.minutes_mk || '').replace(/\n/g,'<br>')}</p><h3>Decisions</h3><p>${escapeHtml(meeting.decisions_mk || '').replace(/\n/g,'<br>')}</p><footer><p>Generated by NA-NAU · ${formattedDate}</p></footer></body></html>`);
         printWindow.document.close();
         printWindow.print();
     }
     
     function viewMeeting(id) {
-        var meeting = null;
-        for (var i = 0; i < meetings.length; i++) {
-            if (meetings[i].id === id) {
-                meeting = meetings[i];
-                break;
-            }
-        }
-        if (meeting) {
-            alert("📌 " + meeting.title_mk + "\n\n📅 " + meeting.date + "\n📍 " + meeting.location + "\n👥 " + meeting.attendees + "\n\n📋 Дневен ред:\n" + meeting.agenda_mk + "\n\n📝 Записник:\n" + meeting.minutes_mk);
-        }
+        const meeting = meetings.find(m => m.id === id);
+        if (meeting) alert(`📌 ${meeting.title_mk}\n\n📅 ${meeting.date}\n📍 ${meeting.location}\n👥 ${meeting.attendees}\n\n📋 Дневен ред:\n${meeting.agenda_mk}\n\n📝 Записник:\n${meeting.minutes_mk}`);
     }
     
     // ==================== РЕНДЕРИРАЊЕ ====================
     function renderMeetings() {
-        var active = [];
-        for (var i = 0; i < meetings.length; i++) {
-            if (!meetings[i].isArchived) active.push(meetings[i]);
-        }
-        if (active.length === 0) return '<div class="card"><div class="empty">' + t('noActive') + '</div></div>';
-        var html = '<div class="card"><div class="card-header"><span class="card-title">📋 ' + t('meetings') + '</span></div>';
+        const active = meetings.filter(m => !m.isArchived);
+        if (!active.length) return `<div class="card"><div class="empty">${t('noActive')}</div></div>`;
+        let html = `<div class="card"><div class="card-header"><span class="card-title">📋 ${t('meetings')}</span></div>`;
         for (var i = 0; i < active.length; i++) {
             var m = active[i];
-            html += '<div class="meeting-item">' +
-                '<div class="meeting-title" onclick="viewMeeting(' + m.id + ')">' + escapeHtml(m.title_mk) + '</div>' +
-                '<div class="meta">📅 ' + m.date + ' | ⏰ ' + m.time + ' | 📍 ' + escapeHtml(m.location) + ' | 👥 ' + escapeHtml(m.attendees || '') + '</div>' +
-                '<div class="action-group">' +
-                '<button class="btn btn-sm" onclick="editMeeting(' + JSON.stringify(m).replace(/"/g, '&quot;') + ')">✏️ ' + t('edit') + '</button>' +
-                '<button class="btn btn-primary btn-sm" onclick="exportWord(' + JSON.stringify(m).replace(/"/g, '&quot;') + ')">📄 ' + t('export') + '</button>' +
-                '<button class="btn btn-sm" onclick="printMeeting(' + JSON.stringify(m).replace(/"/g, '&quot;') + ')">🖨️ ' + t('print') + '</button>';
+            html += `<div class="meeting-item" onclick="viewMeeting(${m.id})">
+                <div class="meeting-title">${escapeHtml(m.title_mk)}</div>
+                <div class="meta">📅 ${m.date} | ⏰ ${m.time} | 📍 ${escapeHtml(m.location)} | 👥 ${escapeHtml(m.attendees || '')}</div>
+                <div class="action-group" onclick="event.stopPropagation()">
+                    <button class="btn btn-sm" onclick='editMeeting(${JSON.stringify(m).replace(/'/g, "&#39;")})'>✏️ ${t('edit')}</button>
+                    <button class="btn btn-primary btn-sm" onclick='exportWord(${JSON.stringify(m).replace(/'/g, "&#39;")})'>📄 ${t('export')}</button>
+                    <button class="btn btn-sm" onclick='printMeeting(${JSON.stringify(m).replace(/'/g, "&#39;")})'>🖨️ ${t('print')}</button>`;
             if (currentUser.isAdmin) {
-                html += '<button class="btn btn-warning btn-sm" onclick="archiveMeeting(' + JSON.stringify(m).replace(/"/g, '&quot;') + ')">📦 ' + t('archiveBtn') + '</button>' +
-                        '<button class="btn btn-danger btn-sm" onclick="deleteMeeting(' + JSON.stringify(m).replace(/"/g, '&quot;') + ')">🗑️ ' + t('delete') + '</button>';
+                html += `<button class="btn btn-warning btn-sm" onclick='archiveMeeting(${JSON.stringify(m).replace(/'/g, "&#39;")})'>📦 ${t('archiveBtn')}</button>
+                        <button class="btn btn-danger btn-sm" onclick='deleteMeeting(${JSON.stringify(m).replace(/'/g, "&#39;")})'>🗑️ ${t('delete')}</button>`;
             }
-            html += '</div></div>';
+            html += `</div></div>`;
         }
-        html += '</div>';
+        html += `</div>`;
         return html;
     }
     
     function renderArchive() {
-        var archived = [];
-        for (var i = 0; i < meetings.length; i++) {
-            if (meetings[i].isArchived) archived.push(meetings[i]);
-        }
-        if (archived.length === 0) return '<div class="card"><div class="empty">' + t('noArchive') + '</div></div>';
-        var html = '<div class="card"><div class="card-header"><span class="card-title">📦 ' + t('archive') + '</span></div>';
+        const archived = meetings.filter(m => m.isArchived);
+        if (!archived.length) return `<div class="card"><div class="empty">${t('noArchive')}</div></div>`;
+        let html = `<div class="card"><div class="card-header"><span class="card-title">📦 ${t('archive')}</span></div>`;
         for (var i = 0; i < archived.length; i++) {
             var m = archived[i];
-            html += '<div class="meeting-item">' +
-                '<div class="meeting-title" style="color:#64748b;" onclick="viewMeeting(' + m.id + ')">' + escapeHtml(m.title_mk) + ' <span class="archived-badge">' + t('archived') + '</span></div>' +
-                '<div class="meta">📅 ' + m.date + ' | ⏰ ' + m.time + ' | 📍 ' + escapeHtml(m.location) + ' | 👥 ' + escapeHtml(m.attendees || '') + '</div>' +
-                '<div style="font-size:0.7rem; color:#166534; margin-top:5px;">✅ ' + t('archivedBy') + ': ' + escapeHtml(m.archivedByName || m.created_by_name) + '</div>' +
-                '<div class="action-group">' +
-                '<button class="btn btn-primary btn-sm" onclick="exportWord(' + JSON.stringify(m).replace(/"/g, '&quot;') + ')">📄 ' + t('export') + '</button>' +
-                '<button class="btn btn-sm" onclick="printMeeting(' + JSON.stringify(m).replace(/"/g, '&quot;') + ')">🖨️ ' + t('print') + '</button>';
+            html += `<div class="meeting-item" onclick="viewMeeting(${m.id})">
+                <div class="meeting-title" style="color:#64748b;">${escapeHtml(m.title_mk)} <span class="archived-badge">${t('archived')}</span></div>
+                <div class="meta">📅 ${m.date} | ⏰ ${m.time} | 📍 ${escapeHtml(m.location)} | 👥 ${escapeHtml(m.attendees || '')}</div>
+                <div style="font-size:0.7rem; color:#166534; margin-top:5px;">✅ ${t('archivedBy')}: ${escapeHtml(m.archivedByName || m.created_by_name)}</div>
+                <div class="action-group" onclick="event.stopPropagation()">
+                    <button class="btn btn-primary btn-sm" onclick='exportWord(${JSON.stringify(m).replace(/'/g, "&#39;")})'>📄 ${t('export')}</button>
+                    <button class="btn btn-sm" onclick='printMeeting(${JSON.stringify(m).replace(/'/g, "&#39;")})'>🖨️ ${t('print')}</button>`;
             if (currentUser.isAdmin) {
-                html += '<button class="btn btn-danger btn-sm" onclick="deleteMeeting(' + JSON.stringify(m).replace(/"/g, '&quot;') + ')">🗑️ ' + t('delete') + '</button>';
+                html += `<button class="btn btn-danger btn-sm" onclick='deleteMeeting(${JSON.stringify(m).replace(/'/g, "&#39;")})'>🗑️ ${t('delete')}</button>`;
             }
-            html += '</div></div>';
+            html += `</div></div>`;
         }
-        html += '</div>';
+        html += `</div>`;
         return html;
     }
     
@@ -556,88 +524,67 @@
             var m = meetings[i];
             if (m.notifications && m.notifications.length) {
                 for (var j = 0; j < m.notifications.length; j++) {
-                    userNotifications.push({
-                        meetingTitle: m.title_mk,
-                        meetingId: m.id,
-                        message: m.notifications[j].message,
-                        date: m.notifications[j].date
-                    });
+                    userNotifications.push({ meetingTitle: m.title_mk, meetingId: m.id, message: m.notifications[j].message, date: m.notifications[j].date, read: m.notifications[j].read });
                 }
             }
         }
-        userNotifications.sort(function(a, b) {
-            return new Date(b.date) - new Date(a.date);
-        });
-        if (userNotifications.length === 0) return '<div class="card"><div class="empty">' + t('noNotifications') + '</div></div>';
-        var html = '<div class="card"><div class="card-header"><span class="card-title">🔔 ' + t('notifications') + '</span></div>';
+        userNotifications.sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+        if (userNotifications.length === 0) return `<div class="card"><div class="empty">${t('noNotifications')}</div></div>`;
+        var html = `<div class="card"><div class="card-header"><span class="card-title">🔔 ${t('notifications')}</span></div>`;
         for (var i = 0; i < userNotifications.length; i++) {
             var n = userNotifications[i];
-            html += '<div class="notification-item" onclick="viewMeeting(' + n.meetingId + ')">📌 <strong>' + escapeHtml(n.meetingTitle) + '</strong><br>📝 ' + escapeHtml(n.message) + '<br><small>' + new Date(n.date).toLocaleString() + '</small></div>';
+            html += `<div class="notification-item" onclick="viewMeeting(${n.meetingId})" style="${!n.read ? 'background:#e6f0ff;' : ''}">
+                📌 <strong>${escapeHtml(n.meetingTitle)}</strong><br>📝 ${escapeHtml(n.message)}<br><small>${new Date(n.date).toLocaleString()}</small>
+            </div>`;
         }
-        html += '</div>';
+        html += `</div>`;
         return html;
     }
     
     function renderForm() {
         var isEdit = (editMeetingId !== null);
-        var meeting = null;
-        if (isEdit) {
-            for (var i = 0; i < meetings.length; i++) {
-                if (meetings[i].id === editMeetingId) {
-                    meeting = meetings[i];
-                    break;
-                }
-            }
-        }
-        var titleMkValue = meeting ? (meeting.title_mk || '') : '';
-        var titleEnValue = meeting ? (meeting.title_en || '') : '';
-        var dateValue = meeting ? (meeting.date || '') : new Date().toISOString().slice(0,10);
-        var timeValue = meeting ? (meeting.time || '10:00') : '10:00';
-        var locationValue = meeting ? (meeting.location || '') : '';
-        var attendeesValue = meeting ? (meeting.attendees || '') : '';
-        var agendaMkValue = meeting ? (meeting.agenda_mk || '') : '';
-        var agendaEnValue = meeting ? (meeting.agenda_en || '') : '';
-        var minutesMkValue = meeting ? (meeting.minutes_mk || '') : '';
-        var minutesEnValue = meeting ? (meeting.minutes_en || '') : '';
-        var decisionsMkValue = meeting ? (meeting.decisions_mk || '') : '';
-        var decisionsEnValue = meeting ? (meeting.decisions_en || '') : '';
-        
-        return '<div class="card"><div class="card-header"><span class="card-title">' + (isEdit ? '✏️ ' + t('edit') : '➕ ' + t('newMeeting')) + '</span></div>' +
-            '<div class="fi"><label>' + t('title') + ' (македонски)*</label><input id="title_mk" value="' + escapeHtml(titleMkValue) + '"></div>' +
-            '<div class="fi"><label>' + t('title') + ' (англиски)</label><input id="title_en" value="' + escapeHtml(titleEnValue) + '"></div>' +
-            '<div class="grid-2"><div><label>' + t('date') + '</label><input type="date" id="date" value="' + dateValue + '"></div>' +
-            '<div><label>' + t('time') + '</label><input type="time" id="time" value="' + timeValue + '"></div></div>' +
-            '<div><label>' + t('location') + '</label><input id="location" value="' + escapeHtml(locationValue) + '"></div>' +
-            '<div><label>' + t('attendees') + '</label><input id="attendees" value="' + escapeHtml(attendeesValue) + '" placeholder="email@na.org.mk"></div>' +
-            '<div><label>' + t('agenda') + ' (македонски)</label><textarea id="agenda_mk" rows="3">' + escapeHtml(agendaMkValue) + '</textarea></div>' +
-            '<div><label>' + t('agenda') + ' (англиски)</label><textarea id="agenda_en" rows="3">' + escapeHtml(agendaEnValue) + '</textarea></div>' +
-            '<div><label>' + t('minutes') + ' (македонски)</label><textarea id="minutes_mk" rows="4">' + escapeHtml(minutesMkValue) + '</textarea></div>' +
-            '<div><label>' + t('minutes') + ' (англиски)</label><textarea id="minutes_en" rows="4">' + escapeHtml(minutesEnValue) + '</textarea></div>' +
-            '<div><label>' + t('decisions') + ' (македонски)</label><textarea id="decisions_mk" rows="3">' + escapeHtml(decisionsMkValue) + '</textarea></div>' +
-            '<div><label>' + t('decisions') + ' (англиски)</label><textarea id="decisions_en" rows="3">' + escapeHtml(decisionsEnValue) + '</textarea></div>' +
-            '<div class="action-group"><button class="btn btn-primary" onclick="' + (isEdit ? 'updateMeeting()' : 'createMeeting()') + '">💾 ' + t('save') + '</button>' +
-            '<button class="btn" onclick="cancelForm()">' + t('cancel') + '</button></div></div>';
+        var meeting = isEdit ? meetings.find(m => m.id === editMeetingId) : null;
+        return `<div class="card"><div class="card-header"><span class="card-title">${isEdit ? '✏️ ' + t('edit') : '➕ ' + t('newMeeting')}</span></div>
+            <div class="fi"><label>${t('title')} (македонски)*</label><input id="title_mk" value="${escapeHtml(meeting?.title_mk || '')}"></div>
+            <div class="fi"><label>${t('title')} (англиски)</label><input id="title_en" value="${escapeHtml(meeting?.title_en || '')}"></div>
+            <div class="grid-2"><div><label>${t('date')}</label><input type="date" id="date" value="${meeting?.date || new Date().toISOString().slice(0,10)}"></div><div><label>${t('time')}</label><input type="time" id="time" value="${meeting?.time || '10:00'}"></div></div>
+            <div><label>${t('location')}</label><input id="location" value="${escapeHtml(meeting?.location || '')}"></div>
+            <div><label>${t('attendees')}</label><input id="attendees" value="${escapeHtml(meeting?.attendees || '')}" placeholder="email@na.org.mk"></div>
+            <div><label>${t('agenda')} (македонски)</label><textarea id="agenda_mk" rows="3">${escapeHtml(meeting?.agenda_mk || '')}</textarea></div>
+            <div><label>${t('agenda')} (англиски)</label><textarea id="agenda_en" rows="3">${escapeHtml(meeting?.agenda_en || '')}</textarea></div>
+            <div><label>${t('minutes')} (македонски)</label><textarea id="minutes_mk" rows="4">${escapeHtml(meeting?.minutes_mk || '')}</textarea></div>
+            <div><label>${t('minutes')} (англиски)</label><textarea id="minutes_en" rows="4">${escapeHtml(meeting?.minutes_en || '')}</textarea></div>
+            <div><label>${t('decisions')} (македонски)</label><textarea id="decisions_mk" rows="3">${escapeHtml(meeting?.decisions_mk || '')}</textarea></div>
+            <div><label>${t('decisions')} (англиски)</label><textarea id="decisions_en" rows="3">${escapeHtml(meeting?.decisions_en || '')}</textarea></div>
+            <div class="action-group"><button class="btn btn-primary" onclick="${isEdit ? 'updateMeeting()' : 'createMeeting()'}">💾 ${t('save')}</button><button class="btn" onclick="cancelForm()">${t('cancel')}</button></div>
+        </div>`;
     }
     
     function renderEmployees() {
-        if (!currentUser.isAdmin) return '<div class="card"><div class="empty">⛔ ' + (lang === 'mk' ? 'Само администратор.' : 'Admin only.') + '</div></div>';
-        var html = '<div class="card"><div class="card-header"><span class="card-title">👥 ' + t('employees') + '</span></div>';
+        if (!currentUser.isAdmin) return `<div class="card"><div class="empty">⛔ ${lang === 'mk' ? 'Само администратор.' : 'Admin only.'}</div></div>`;
+        var html = `<div class="card"><div class="card-header"><span class="card-title">👥 ${t('employees')}</span></div>`;
         for (var i = 0; i < users.length; i++) {
             var u = users[i];
-            html += '<div class="employee-card"><div><strong>' + escapeHtml(u.name) + '</strong><br><small>' + escapeHtml(u.position) + '</small><br><small>📧 ' + escapeHtml(u.email) + '</small><br>' + (u.isAdmin ? '👑 ' + t('isAdmin') : '') + '</div>' +
-                '<div>' + 
-                (u.id !== currentUser.id ? '<button class="btn btn-warning btn-sm" onclick="resetUserPassword(' + u.id + ')" style="margin-right:5px;">🔑 Промени лозинка</button>' : '') +
-                (u.id !== currentUser.id ? '<button class="btn btn-danger btn-sm" onclick="deleteUser(' + u.id + ')">🗑️ Избриши</button>' : '') +
-                '</div></div>';
+            html += `<div class="employee-card">
+                <div><strong>${escapeHtml(u.name)}</strong><br><small>${escapeHtml(u.position)}</small><br><small>📧 ${escapeHtml(u.email)}</small><br>${u.isAdmin ? '👑 ' + t('isAdmin') : ''}</div>
+                <div>
+                    ${u.id !== currentUser.id ? `<button class="btn btn-warning btn-sm" onclick="resetUserPassword(${u.id})" style="margin-right:5px;">🔑 Лозинка</button>` : ''}
+                    ${u.id !== currentUser.id ? `<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">🗑️</button>` : ''}
+                </div>
+            </div>`;
         }
-        html += '</div>' +
-            '<div class="card"><div class="card-header"><span class="card-title">⚙️ ' + t('addUser') + '</span></div>' +
-            '<div class="grid-2"><div><label>' + t('name') + '</label><input id="newName" placeholder="Име"></div>' +
-            '<div><label>Email</label><input id="newEmail" placeholder="email@na.org.mk"></div></div>' +
-            '<div><label>' + t('position') + '</label><input id="newPos" placeholder="Функција"></div>' +
-            '<div><label>' + t('passwordLabel') + '</label><input id="newPassword" placeholder="Лозинка" value="12345"></div>' +
-            '<div style="margin:10px 0;"><label><input type="checkbox" id="newIsAdmin"> 👑 ' + t('isAdmin') + '</label></div>' +
-            '<button class="btn btn-primary" onclick="addUser()">➕ ' + t('addUser') + '</button></div>';
+        html += `</div>
+        <div class="add-user-section">
+            <div class="card-title" style="margin-bottom:15px;">➕ ${t('addUser')}</div>
+            <div class="grid-2">
+                <div class="fi"><label>${t('name')}</label><input id="newName" placeholder="Име"></div>
+                <div class="fi"><label>Email</label><input id="newEmail" placeholder="email@na.org.mk"></div>
+                <div class="fi"><label>${t('position')}</label><input id="newPos" placeholder="Функција"></div>
+                <div class="fi"><label>${t('password')}</label><input id="newPassword" placeholder="Лозинка" value="12345"></div>
+            </div>
+            <div style="margin:10px 0;"><label><input type="checkbox" id="newIsAdmin"> 👑 ${t('isAdmin')}</label></div>
+            <button class="btn btn-primary" onclick="addUser()">➕ ${t('addUser')}</button>
+        </div>`;
         return html;
     }
     
@@ -645,22 +592,26 @@
         var tabsList = [
             { id: "meetings", label: t('meetings') },
             { id: "new", label: t('newMeeting') },
+            { id: "calendar", label: t('calendar') },
             { id: "archive", label: t('archive') },
             { id: "notifications", label: t('notifications') }
         ];
-        if (currentUser.isAdmin) {
-            tabsList.push({ id: "employees", label: t('employees') });
-        }
-        var tabsHtml = '<div class="tabs">';
+        if (currentUser.isAdmin) tabsList.push({ id: "employees", label: t('employees') });
+        
+        var tabsHtml = `<div class="tabs">`;
         for (var i = 0; i < tabsList.length; i++) {
             var tab = tabsList[i];
-            tabsHtml += '<button class="tab ' + (currentTab === tab.id ? 'active' : '') + '" data-tab="' + tab.id + '">' + tab.label + '</button>';
+            var hasDot = (tab.id === "notifications" && unreadNotifications);
+            tabsHtml += `<button class="tab ${currentTab === tab.id ? 'active' : ''}" data-tab="${tab.id}" onclick="if('${tab.id}' === 'notifications') markNotificationsAsRead();">
+                ${tab.label} ${hasDot ? '<span class="notification-dot"></span>' : ''}
+            </button>`;
         }
-        tabsHtml += '</div>';
+        tabsHtml += `</div>`;
         
         var content = '';
         if (currentTab === "meetings") content = renderMeetings();
         else if (currentTab === "new") content = renderForm();
+        else if (currentTab === "calendar") content = renderCalendar();
         else if (currentTab === "archive") content = renderArchive();
         else if (currentTab === "notifications") content = renderNotifications();
         else if (currentTab === "employees") content = renderEmployees();
@@ -669,54 +620,61 @@
     }
     
     function renderLogin() {
-        return '<div class="login-container"><div class="login-header"><div class="flags"><span class="flag-big">🇪🇺</span><span class="flag-big">🇲🇰</span></div>' +
-            '<div class="login-title">NA-NAU Meeting Management</div><div class="login-sub">' + t('loginTitle') + '</div>' +
-            '<div class="lang-switch" style="justify-content:center;margin-top:10px;">' +
-            '<button class="lang-btn ' + (lang === 'mk' ? 'active' : '') + '" onclick="setLanguage(\'mk\')">🇲🇰 МКД</button>' +
-            '<button class="lang-btn ' + (lang === 'en' ? 'active' : '') + '" onclick="setLanguage(\'en\')">🇬🇧 EN</button></div></div>' +
-            '<div id="loginError" class="error-msg" style="display:none;"></div>' +
-            '<div><label>' + t('email') + '</label><input type="email" id="loginEmail" autocomplete="off" placeholder="email@na.org.mk"></div>' +
-            '<div><label>' + t('password') + '</label><input type="password" id="loginPassword" autocomplete="off" placeholder="********"></div>' +
-            '<button class="btn btn-primary" style="width:100%;" onclick="doLogin()">' + t('login') + '</button></div>';
+        return `<div class="login-container"><div class="login-header"><div class="flags"><span class="flag-big">🇪🇺</span><span class="flag-big">🇲🇰</span></div>
+            <div class="login-title">NA-NAU Meeting Management</div><div class="login-sub">${t('loginTitle')}</div>
+            <div class="lang-switch" style="justify-content:center;margin-top:10px;">
+            <button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰 МКД</button>
+            <button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧 EN</button></div></div>
+            <div id="loginError" class="error-msg" style="display:none;"></div>
+            <div><label>${t('email')}</label><input type="email" id="loginEmail" autocomplete="off" placeholder="email@na.org.mk"></div>
+            <div><label>${t('password')}</label><input type="password" id="loginPassword" autocomplete="off" placeholder="********"></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">${t('login')}</button></div>`;
     }
     
     function renderApp() {
         var root = document.getElementById('appRoot');
         if (!currentUser) {
             root.innerHTML = renderLogin();
+            var emailEl = document.getElementById('loginEmail');
+            var pwdEl = document.getElementById('loginPassword');
+            if (emailEl) emailEl.value = '';
+            if (pwdEl) pwdEl.value = '';
         } else {
-            root.innerHTML = '<div class="app"><div class="hdr"><div class="logo-section">' +
-                '<div class="logo-icon">НА</div><div class="logo-text"><strong>НАЕОПМ</strong><br>Скопје</div>' +
-                '<div class="logo-icon">МОН</div><div class="logo-text"><strong>Министерство за<br>образование и наука</strong></div>' +
-                '<div><div class="hdr-title">NA-NAU <span class="hdr-accent">Meeting Management</span></div></div></div>' +
-                '<div class="user-panel"><div class="lang-switch">' +
-                '<button class="lang-btn ' + (lang === 'mk' ? 'active' : '') + '" onclick="setLanguage(\'mk\')">🇲🇰</button>' +
-                '<button class="lang-btn ' + (lang === 'en' ? 'active' : '') + '" onclick="setLanguage(\'en\')">🇬🇧</button></div>' +
-                '<div class="user-info">' + escapeHtml(currentUser.name) + ' (' + escapeHtml(currentUser.position) + ')</div>' +
-                '<button class="btn-logout" onclick="logout()">' + t('logout') + '</button></div></div>' + renderMain() +
-                '<div class="footer-credit">Created by: D. Dimitrov · NA-NAU</div></div>';
+            root.innerHTML = `<div class="app"><div class="hdr"><div class="logo-section">
+                <div class="logo-icon">НА</div><div class="logo-text"><strong>НАЕОПМ</strong><br>Скопје</div>
+                <div class="logo-icon">МОН</div><div class="logo-text"><strong>Министерство за<br>образование и наука</strong></div>
+                <div><div class="hdr-title">NA-NAU <span class="hdr-accent">Meeting Management</span></div></div></div>
+                <div class="user-panel"><div class="lang-switch">
+                <button class="lang-btn ${lang === 'mk' ? 'active' : ''}" onclick="setLanguage('mk')">🇲🇰</button>
+                <button class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="setLanguage('en')">🇬🇧</button></div>
+                <div class="user-info">${escapeHtml(currentUser.name)} (${escapeHtml(currentUser.position)})</div>
+                <button class="btn-logout" onclick="logout()">${t('logout')}</button></div></div>
+                ${renderMain()}
+                <div class="footer-credit">Created by: D. Dimitrov · NA-NAU</div></div>`;
             
             var btns = document.querySelectorAll('[data-tab]');
             for (var i = 0; i < btns.length; i++) {
                 btns[i].addEventListener('click', function(e) {
-                    currentTab = this.getAttribute('data-tab');
+                    var tabId = this.getAttribute('data-tab');
+                    if (tabId === 'notifications') markNotificationsAsRead();
+                    currentTab = tabId;
                     renderApp();
                 });
             }
+            var prevBtn = document.getElementById("prevMonthBtn");
+            var nextBtn = document.getElementById("nextMonthBtn");
+            if (prevBtn) prevBtn.onclick = function() { calendarMonth--; if(calendarMonth<0){calendarMonth=11;calendarYear--;} renderApp(); };
+            if (nextBtn) nextBtn.onclick = function() { calendarMonth++; if(calendarMonth>11){calendarMonth=0;calendarYear++;} renderApp(); };
         }
     }
     
-    function setLanguage(l) {
-        lang = l;
-        renderApp();
-    }
+    function setLanguage(l) { lang = l; renderApp(); }
     
     window.viewMeeting = viewMeeting;
     window.doLogin = async function() {
-        var emailEl = document.getElementById('loginEmail');
-        var pwdEl = document.getElementById('loginPassword');
-        if (!emailEl || !pwdEl) return;
-        var result = await login(emailEl.value, pwdEl.value);
+        var email = document.getElementById('loginEmail').value;
+        var pwd = document.getElementById('loginPassword').value;
+        var result = await login(email, pwd);
         if (!result.success) {
             var errDiv = document.getElementById('loginError');
             if (errDiv) {
@@ -737,8 +695,10 @@
     window.deleteUser = deleteUser;
     window.resetUserPassword = resetUserPassword;
     window.setLanguage = setLanguage;
+    window.openDatePicker = openDatePicker;
     
-    loadMeetings();
+    loadUsersFromCloud();
+    loadMeetingsFromCloud();
     renderApp();
 </script>
 </body>
